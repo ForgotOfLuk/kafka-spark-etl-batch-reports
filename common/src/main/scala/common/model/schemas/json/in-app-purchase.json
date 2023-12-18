@@ -1,0 +1,41 @@
+{
+	"$schema": "http://json-schema.org/draft-03/schema#",
+	"title": "In-app purchase event",
+	"type": "object",
+	"required": true,
+	"properties": {
+		"event-type": {
+			"enum": [
+				"in-app-purchase"
+			],
+			"required": true
+		},
+		"time": {
+			"type": "integer",
+			"minimum": 0,
+			"required": true
+		},
+		"purchase_value": {
+			"type": "number",
+			"minimum": 0,
+			"required": true
+		},
+		"user-id": {
+			"type": [
+				"string",
+				"integer"
+			],
+			"required": true,
+			"minLength": 1,
+			"maxLength": 50,
+			"minimum": 0
+		},
+		"product-id": {
+			"type": "string",
+			"required": true,
+			"minLength": 1,
+			"maxLength": 100
+		}
+	},
+	"additionalProperties": false
+}

@@ -1,0 +1,49 @@
+version: '3'
+services:
+  zookeeper:
+    container_name: miniclip_zookeeper
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+
+  miniclip_kafka:
+    container_name: miniclip_kafka
+    hostname: miniclip_kafka
+    image: wurstmeister/kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: miniclip_zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9101
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://miniclip_kafka:9092,OUTSIDE://localhost:9101
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  schema-registry:
+    container_name: schema-registry
+    hostname: schema-registry
+    image: confluentinc/cp-schema-registry
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://miniclip_kafka:9092'
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    depends_on:
+      - zookeeper
+      - miniclip_kafka
+
+
+  scala-app:
+    container_name: miniclip_scala_app
+    build: ./scala-app
+    depends_on:
+      - miniclip_kafka
+
+

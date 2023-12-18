@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "InAppPurchaseEvent",
+  "namespace": "com.miniclip.avro",
+  "fields": [
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "EventTypeInAppPurchase",
+        "symbols": ["in_app_purchase"]
+      },
+      "default": "in_app_purchase"
+    },
+    {
+      "name": "time",
+      "type": "long"
+    },
+    {
+      "name": "purchaseValue",
+      "type": "double"
+    },
+    {
+      "name": "userId",
+      "type": ["string", "long"]
+    },
+    {
+      "name": "productId",
+      "type": "string"
+    }
+  ]
+}

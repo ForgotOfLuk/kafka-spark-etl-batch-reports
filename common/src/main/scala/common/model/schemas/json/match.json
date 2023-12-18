@@ -1,0 +1,107 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "title": "Match event",
+    "type": "object",
+    "required": true,
+    "properties": {
+        "event-type": {
+            "enum": [
+                "match"
+            ],
+            "required": true
+        },
+        "time": {
+            "type": "integer",
+            "required": true,
+            "minimum": 0
+        },
+        "user-a": {
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "user-b": {
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "user-a-postmatch-info": {
+            "type": "object",
+            "required": true,
+            "additionalProperties": false,
+            "properties": {
+                "coin-balance-after-match": {
+                    "type": "integer",
+                    "required": true,
+                    "minimum": 0
+                },
+                "level-after-match": {
+                    "type": "integer",
+                    "required": true,
+                    "minimum": 0
+                },
+                "device": {
+                    "type": "string",
+                    "required": true,
+                    "minLength": 1,
+                    "maxLength": 200
+                },
+                "platform": {
+                    "type": "string",
+                    "required": true,
+                    "minLength": 1,
+                    "maxLength": 10
+                }
+            }
+        },
+        "user-b-postmatch-info": {
+            "type": "object",
+            "required": false,
+            "additionalProperties": false,
+            "properties": {
+                "coin-balance-after-match": {
+                    "type": "integer",
+                    "required": true,
+                    "minimum": 0
+                },
+                "level-after-match": {
+                    "type": "integer",
+                    "required": true,
+                    "minimum": 0
+                },
+                "device": {
+                    "type": "string",
+                    "required": true,
+                    "minLength": 1,
+                    "maxLength": 200
+                },
+                "platform": {
+                    "type": "string",
+                    "required": true,
+                    "minLength": 1,
+                    "maxLength": 10
+                }
+            }
+        },
+        "winner": {
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50
+        },
+        "game-tier": {
+            "type": "integer",
+            "required": true,
+            "minimum": 1,
+            "minimum": 5
+        },
+        "duration": {
+            "type": "integer",
+            "required": true,
+            "minimum": 0
+        }
+    },
+    "additionalProperties": false
+}

@@ -1,0 +1,1 @@
+name := "Miniclip-Common"

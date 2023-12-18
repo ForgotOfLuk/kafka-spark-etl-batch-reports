@@ -1,0 +1,42 @@
+{
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "title": "Init event",
+    "type": "object",
+    "required": true,
+    "properties": {
+        "event-type": {
+            "enum": [
+                "init"
+            ],
+            "required": true
+        },
+        "time": {
+            "type": "integer",
+            "minimum": 0,
+            "required": true
+        },
+        "user-id": {
+            "type": [
+                "string",
+                "integer"
+            ],
+            "required": true,
+            "minLength": 1,
+            "maxLength": 50,
+            "minimum": 0
+        },
+        "country": {
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "platform": {
+            "type": "string",
+            "required": true,
+            "minLength": 1,
+            "maxLength": 100
+        }
+    },
+    "additionalProperties": false
+}
