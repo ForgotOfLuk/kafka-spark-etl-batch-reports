@@ -1,4 +1,4 @@
-import sbt._
+import sbt.*
 
 object Dependencies {
   // Versions
@@ -7,17 +7,21 @@ object Dependencies {
   val avroVersion = "1.11.0"
   val typesafeVersion = "1.4.2"
   val scalatestVersion = "3.2.15"
+  val scalaLogVersion = "3.9.5"
+  val logbackVersion = "1.4.7"
 
   // dependencies for the common project
   val commonDependencies: Seq[ModuleID] = Seq(
-    "org.apache.kafka" %% "kafka" % kafkaVersion,
-    "io.confluent" % "kafka-avro-serializer" % confluentVersion,
     "org.apache.avro" % "avro" % avroVersion,
     "com.typesafe" % "config" % typesafeVersion,
+    "com.typesafe.scala-logging" %% "scala-logging" % scalaLogVersion,
+    "ch.qos.logback" % "logback-classic" % logbackVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test,
   )
   // Specific dependencies for the mockData project
   val mockDataDependencies: Seq[ModuleID] = Seq(
+    "io.confluent" % "kafka-avro-serializer" % confluentVersion,
+    "org.apache.kafka" %% "kafka" % kafkaVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test,
   )
 

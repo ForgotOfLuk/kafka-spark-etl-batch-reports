@@ -39,11 +39,14 @@ services:
       - zookeeper
       - miniclip_kafka
 
-
-  scala-app:
-    container_name: miniclip_scala_app
-    build: ./scala-app
+  mock-data:
+    container_name: miniclip_mock_data
+    build: ./mock-data # Dockerfile in the mock-data directory
+    environment:
+      KAFKA_BROKERS: "miniclip_kafka:9092"
+      SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
     depends_on:
       - miniclip_kafka
+      - schema-registry
 
 

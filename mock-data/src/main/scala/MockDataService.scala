@@ -1,52 +1,32 @@
-import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
-import com.typesafe.config.{Config, ConfigFactory}
-import common.KafkaAvroProducer
-import model.KafkaProducers
+import com.typesafe.scalalogging.LazyLogging
+import utils.Utils.{generateData, loadConfig, setupKafkaProducers}
 
-import java.util.concurrent.{Executors, TimeUnit}
+import scala.util.{Failure, Success}
 
-object MockDataService {
+/**
+ * Main class for MockDataService.
+ * Initializes the service by loading configuration, setting up Kafka producers, and starting data generation.
+ */
+object MockDataService extends LazyLogging {
+
   def main(args: Array[String]): Unit = {
-    val config = ConfigFactory.load()
-    val kafkaConfig = config.getConfig("mock-data.kafka")
-    val mockConfig = config.getConfig("mock-data.mock")
+    logger.info("Initializing MockDataService")
 
-    // Extract configurations
-    val brokers = kafkaConfig.getString("brokers")
-    val schemaRegistryUrl = kafkaConfig.getString("schemaRegistryUrl")
-    val topics = kafkaConfig.getConfig("topics")
-    val startupDataDays = mockConfig.getInt("startupDataDays")
-    val eventIntervalSeconds = mockConfig.getInt("eventIntervalSeconds")
-    val liveDataIntervalSeconds = mockConfig.getInt("liveDataIntervalSeconds")
-    val errorProbability = mockConfig.getDouble("errorProbability")
+    // Load configurations
+    loadConfig() match {
+      case Success((kafkaConfig, mockConfig, topics)) =>
+        logger.info("Configurations loaded successfully")
 
-    // Kafka producer setup
-    val kafkaProducers = KafkaProducers(
-      initEventProducer = KafkaAvroProducer.createProducer[InitEvent](brokers, schemaRegistryUrl),
-      matchEventProducer = KafkaAvroProducer.createProducer[MatchEvent](brokers, schemaRegistryUrl),
-      inAppPurchaseEventProducer = KafkaAvroProducer.createProducer[InAppPurchaseEvent](brokers, schemaRegistryUrl)
-    )
+        // Setup Kafka producers
+        val kafkaProducers = setupKafkaProducers(kafkaConfig)
+        logger.info("Kafka producers set up")
 
-    // Generate startup data
-    generateStartupData(kafkaProducers, topics, startupDataDays, eventIntervalSeconds, errorProbability)
+        // Start data generation process
+        generateData(kafkaProducers, topics, mockConfig)
+        logger.info("Data generation started")
 
-    // Start generating live data
-    val executor = Executors.newSingleThreadScheduledExecutor()
-    executor.scheduleAtFixedRate(() => {
-      generateLiveData(kafkaProducers, topics, errorProbability)
-    }, 0, liveDataIntervalSeconds, TimeUnit.SECONDS)
-
-    // Add shutdown hook
-    Runtime.getRuntime.addShutdownHook(new Thread(() => {
-      kafkaProducers.closeProducers()
-      executor.shutdown()
-    }))
-  }
-
-  def generateStartupData(kafkaProducers: KafkaProducers, topics: Config, startupDataDays: Int, eventIntervalSeconds: Int, errorProbability: Double): Unit = {
-  }
-
-
-  def generateLiveData(kafkaProducers: KafkaProducers, topics: Config, errorProb: Double): Unit = {
+      case Failure(exception) =>
+        logger.error("Failed to initialize MockDataService", exception)
+    }
   }
 }

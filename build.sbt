@@ -1,3 +1,5 @@
+import Dependencies.commonResolvers
+
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / scalaVersion := "2.13.12"
 
@@ -19,8 +21,19 @@ lazy val mockData = (project in file("mock-data"))
   .dependsOn(common)
   .settings(
     name := "Miniclip-MockData",
-    libraryDependencies ++= mockDataDependencies
+    libraryDependencies ++= mockDataDependencies,
+    assembly / mainClass := Some("MockDataService"),
+    assembly / assemblyJarName := "mock-data-assembly.jar",
+    ThisBuild / assemblyMergeStrategy := {
+        case PathList("META-INF", xs @ _*) if xs.nonEmpty && xs.last == "MANIFEST.MF" => MergeStrategy.discard
+        case PathList("META-INF", "io.netty.versions.properties", _*) => MergeStrategy.first
+        case "module-info.class" => MergeStrategy.discard
+        case PathList("META-INF", "versions", "9", "module-info.class", _*) => MergeStrategy.discard // Add this line
+        case "kafka/kafka-version.properties" => MergeStrategy.first
+        case x => MergeStrategy.defaultMergeStrategy(x)
+    }
   )
+
 
 lazy val dataProcessing = (project in file("kafka-data-processing"))
   .dependsOn(common)
