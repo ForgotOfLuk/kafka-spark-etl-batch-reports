@@ -28,6 +28,8 @@ project/target/
 .DS_Store
 *.swp
 *.swo
+.bsp
+.idea
 
 # If using macOS, to ignore Spotlight metadata files
 ._*
