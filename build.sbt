@@ -6,17 +6,9 @@ import sbtavrohugger.SbtAvrohugger.autoImport.*
 
 lazy val common = (project in file("common"))
   .settings(
-    resolvers ++= Seq(
-      Classpaths.typesafeReleases,
-      "confluent" at "https://packages.confluent.io/maven/",
-    ),
+    resolvers ++= commonResolvers,
     name := "Miniclip-Common",
-    libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % "3.2.15" % "test",
-      "org.apache.kafka" %% "kafka" % kafkaVersion,
-      "io.confluent" % "kafka-avro-serializer" % "7.5.1",
-      "org.apache.avro" % "avro" % "1.11.0"
-    ),
+    libraryDependencies ++= commonDependencies,
     //add avro generation to the compile step
     Compile / sourceGenerators += (Compile / avroScalaGenerateSpecific).taskValue,
     Compile / avroSpecificSourceDirectories += baseDirectory.value / "src/main/scala/common/model/schemas/avro",

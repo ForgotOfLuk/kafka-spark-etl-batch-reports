@@ -3,8 +3,8 @@ package com.miniclip.avro
 
 import scala.annotation.switch
 
-final case class InAppPurchaseEvent(var eventType: EventTypeInAppPurchase = EventTypeInAppPurchase.in_app_purchase, var time: Long, var purchaseValue: Double, var userId: Either[String, Long], var productId: String) extends org.apache.avro.specific.SpecificRecordBase {
-  def this() = this(EventTypeInAppPurchase.in_app_purchase, 0L, 0.0, Left(""), "")
+final case class InAppPurchaseEvent(var eventType: EventTypeInAppPurchase = EventTypeInAppPurchase.in_app_purchase, var time: Long, var purchaseValue: Double, var userId: String, var productId: String) extends org.apache.avro.specific.SpecificRecordBase {
+  def this() = this(EventTypeInAppPurchase.in_app_purchase, 0L, 0.0, "", "")
   def get(field$: Int): AnyRef = {
     (field$: @switch) match {
       case 0 => {
@@ -37,8 +37,8 @@ final case class InAppPurchaseEvent(var eventType: EventTypeInAppPurchase = Even
         value
       }.asInstanceOf[Double]
       case 3 => this.userId = {
-        value
-      }.asInstanceOf[Either[String, Long]]
+        value.toString
+      }.asInstanceOf[String]
       case 4 => this.productId = {
         value.toString
       }.asInstanceOf[String]
@@ -50,5 +50,5 @@ final case class InAppPurchaseEvent(var eventType: EventTypeInAppPurchase = Even
 }
 
 object InAppPurchaseEvent {
-  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InAppPurchaseEvent\",\"namespace\":\"com.miniclip.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInAppPurchase\",\"symbols\":[\"in_app_purchase\"]},\"default\":\"in_app_purchase\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"purchaseValue\",\"type\":\"double\"},{\"name\":\"userId\",\"type\":[\"string\",\"long\"]},{\"name\":\"productId\",\"type\":\"string\"}]}")
+  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InAppPurchaseEvent\",\"namespace\":\"com.miniclip.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInAppPurchase\",\"symbols\":[\"in_app_purchase\"]},\"default\":\"in_app_purchase\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"purchaseValue\",\"type\":\"double\"},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"productId\",\"type\":\"string\"}]}")
 }

@@ -1,5 +1,36 @@
+# Compiled class files
 *.class
+
+# Log files
 *.log
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Virtual machine crash logs
 hs_err_pid*
+
+# SBT specific
+target/
+lib_managed/
+src_managed/
+project/project/
+project/target/
+.cache
+.history
+
+# IntelliJ IDEA specific
+.idea/
+*.iml
+*.iws
+*.ipr
+.out/
+*.idea
+
+# Other common ignores
+.DS_Store
+*.swp
+*.swo
+
+# If using macOS, to ignore Spotlight metadata files
+._*
+
+# If using Windows, to ignore thumbnail cache files
+Thumbs.db

@@ -22,7 +22,7 @@
     },
     {
       "name": "userId",
-      "type": ["string", "long"]
+      "type": "string"
     },
     {
       "name": "productId",
