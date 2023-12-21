@@ -28,9 +28,6 @@ object KafkaDataQualityService extends App with LazyLogging with ConfigUtils {
 
   val platformsTable = createGlobalTable[String, String](builder, getGlobalKTableTopic(configName, "platforms"), "platforms-store")
   val countriesTable = createGlobalTable[String, String](builder, getGlobalKTableTopic(configName, "countries"), "countries-store")
-  val devicesTable = createGlobalTable[String, String](builder, getGlobalKTableTopic(configName, "devices"), "devices-store")
-  val productIdsTable = createGlobalTable[String, String](builder, getGlobalKTableTopic(configName, "products"), "products-store")
-
 
   logger.info("Building input streams for Kafka data quality service")
   val initEventInputStream = createStream(builder, getInputTopic(configName, "init"), streamKeySerde, initEventSerde)

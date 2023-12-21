@@ -1,10 +1,10 @@
 package operations
 
-import com.miniclip.avro.{InitEvent, MatchEvent}
+import com.miniclip.avro.InitEvent
 import com.typesafe.scalalogging.LazyLogging
 import operations.stream.{JoinedStreamOperation, StreamOperation}
 import org.apache.kafka.common.serialization.Serde
-import org.apache.kafka.streams.kstream.{GlobalKTable, Named}
+import org.apache.kafka.streams.kstream.GlobalKTable
 import org.apache.kafka.streams.scala.kstream.{Joined, KStream, KTable}
 import utils.StreamProcessingUtils.getValueBranches
 

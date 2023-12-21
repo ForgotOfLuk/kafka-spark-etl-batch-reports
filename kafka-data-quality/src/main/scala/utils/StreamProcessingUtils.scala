@@ -21,6 +21,7 @@ object StreamProcessingUtils extends LazyLogging {
     val mainOutput = branches.head._2
     val sideOutput = branches.last._2
 
+    //TODO change to use filters directly to get the different streams just to check if it fixes the issue
     (mainOutput, sideOutput)
   }
 

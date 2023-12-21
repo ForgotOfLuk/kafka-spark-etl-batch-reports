@@ -33,8 +33,6 @@ docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:21
 echo "Creating GlobalKTable topics..."
 docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic platforms_topic
 docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic countries_topic
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic devices_topic
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic products_topic
 
 echo "Registering Avro schemas with the Schema Registry..."
 
