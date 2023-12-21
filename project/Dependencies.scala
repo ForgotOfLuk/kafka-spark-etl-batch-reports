@@ -9,6 +9,7 @@ object Dependencies {
   val scalatestVersion = "3.2.15"
   val scalaLogVersion = "3.9.5"
   val logbackVersion = "1.4.7"
+  val catsVersion = "2.9.0"
 
   // dependencies for the common project
   val commonDependencies: Seq[ModuleID] = Seq(
@@ -31,8 +32,10 @@ object Dependencies {
     "io.confluent" % "kafka-streams-avro-serde" % confluentVersion,
     "org.apache.kafka" %% "kafka-streams-scala" % kafkaVersion,
     "org.apache.kafka" % "kafka-clients" % kafkaVersion,
-    "org.typelevel" %% "cats-core" % "2.9.0",
+    "org.typelevel" %% "cats-core" % catsVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test,
+    "org.typelevel" %% "cats-core" % catsVersion
+
   )
 
   val commonResolvers: Seq[Resolver] = Seq(

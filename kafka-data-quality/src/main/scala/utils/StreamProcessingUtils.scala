@@ -1,10 +1,9 @@
 package utils
 
-import com.miniclip.avro.{InitEvent, MatchEvent}
+import cats.data.Validated
+import com.miniclip.avro.InitEvent
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.avro.specific.SpecificRecordBase
-import org.apache.kafka.streams.kstream.Named
-import org.apache.kafka.streams.scala.kstream.{Branched, KStream, KTable}
+import org.apache.kafka.streams.scala.kstream.{KStream, KTable}
 
 object StreamProcessingUtils extends LazyLogging {
 
@@ -12,32 +11,19 @@ object StreamProcessingUtils extends LazyLogging {
     logger.info("Creating KTable from InitEvent stream")
     stream.toTable
   }
-  def getValueBranches[T](name: String, input: KStream[String, T], separateFunction: T => Boolean): (KStream[String, T], KStream[String, T]) = {
-    val branches = input.split(Named.as(s"Split-$name"))
-      .branch((_, value) => separateFunction(value))
-      .branch((_, value) => !separateFunction(value))
-      .noDefaultBranch()
-
-    val mainOutput = branches.head._2
-    val sideOutput = branches.last._2
-
-    //TODO change to use filters directly to get the different streams just to check if it fixes the issue
-    (mainOutput, sideOutput)
-  }
-
-  def getKeyBranches[T](name: String, input: KStream[String, T], separateFunction: String => Boolean): (KStream[String, T], KStream[String, T]) = {
-    val branches = input.split(Named.as(s"Split-$name"))
-      .branch((key, _) => separateFunction(key))
-      .branch((key, _) => !separateFunction(key))
-      .noDefaultBranch()
-
-    val mainOutput = branches.head._2
-    val sideOutput = branches.last._2
+  def filterValues[T](input: KStream[String, T], validationFunction: T => Validated[String, T]): (KStream[String, T], KStream[String, T]) = {
+    val mainOutput = input.filter((_, value) => validationFunction(value).isValid)
+    val sideOutput = input.filter((_, value) => validationFunction(value).isInvalid)
 
     (mainOutput, sideOutput)
   }
 
-  // separateFunction to check if key is null or "invalid"
-  def separateFunction: String => Boolean = key => key != null && key != "invalid"
+  def filterKeys[T](input: KStream[String, T], validationFunction: String => Validated[String, String]): (KStream[String, T], KStream[String, T]) = {
+    val mainOutput = input.filter((key, _) => validationFunction(key).isValid)
+    val sideOutput = input.filter((key, _) => validationFunction(key).isInvalid)
+
+    (mainOutput, sideOutput)
+  }
+
 
 }

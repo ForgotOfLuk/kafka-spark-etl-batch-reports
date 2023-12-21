@@ -2,7 +2,7 @@ import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
 import com.typesafe.scalalogging.LazyLogging
 import common.utils.ConfigUtils
 import operations.StreamEnrichmentOperations.{enrichInitStream, joinInitStream, transformJoinedStream, transformStream}
-import operations.stream.{CapitalizePlatform, JoinedStreamOperation, ValidateEventsTimestamps}
+import operations.stream.{CapitalizePlatform, ValidateEventsTimestamps}
 import org.apache.avro.specific.SpecificRecordBase
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.streams.KafkaStreams
@@ -12,7 +12,8 @@ import org.apache.kafka.streams.scala.serialization.Serdes
 import org.apache.kafka.streams.scala.serialization.Serdes._
 import utils.GlobalTableUtils.createGlobalTable
 import utils.StreamBuilderUtils.{consumedString, createStream, createStreamsConfig, createValueSerde, sendToTopic}
-import utils.StreamProcessingUtils.{createInitEventKTable, getKeyBranches, getValueBranches, separateFunction}
+import utils.StreamProcessingUtils.{createInitEventKTable, filterKeys}
+import utils.Validation.separateFunction
 
 object KafkaDataQualityService extends App with LazyLogging with ConfigUtils {
   private val configName = "data-quality"
@@ -55,8 +56,8 @@ object KafkaDataQualityService extends App with LazyLogging with ConfigUtils {
   private val transformedMatchStream = transformJoinedStream(joinedMatchStream, matchJoinOperations)
   private val transformedPurchaseStream = transformJoinedStream(joinedPurchaseStream, purchaseJoinOperations)
 
-  private val (matchStreamOutput, matchStreamSideOutput) = getKeyBranches("match", transformedMatchStream, separateFunction)
-  private val (purchaseStreamOutput, purchaseStreamSideOutput) = getKeyBranches("purchase", transformedPurchaseStream, separateFunction)
+  private val (matchStreamOutput, matchStreamSideOutput) = filterKeys(transformedMatchStream, separateFunction)
+  private val (purchaseStreamOutput, purchaseStreamSideOutput) = filterKeys(transformedPurchaseStream, separateFunction)
 
   // Send joined streams to respective output topics
   logger.info("Building output streams for Kafka data quality service")

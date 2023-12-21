@@ -6,7 +6,8 @@ import operations.stream.{JoinedStreamOperation, StreamOperation}
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.streams.kstream.GlobalKTable
 import org.apache.kafka.streams.scala.kstream.{Joined, KStream, KTable}
-import utils.StreamProcessingUtils.getValueBranches
+import utils.StreamProcessingUtils.filterValues
+import utils.Validation.validateCorrectInitEvents
 
 import scala.language.postfixOps
 import scala.util.Try
@@ -79,12 +80,7 @@ object StreamEnrichmentOperations extends LazyLogging{
     val outcome = countryJoinOperation
       .transformStream(platformOutcome)
 
-    getValueBranches("enriched", outcome, validateCorrectInitEvents)
-  }
-
-  private def validateCorrectInitEvents(value: InitEvent): Boolean = {
-    !value.platform.equals("Unknown") && !value.platform.equals("Error") &&
-      !value.country.equals("Unknown") && !value.country.equals("Error")
+    filterValues(outcome, validateCorrectInitEvents)
   }
 
   def joinInitStream[T](
