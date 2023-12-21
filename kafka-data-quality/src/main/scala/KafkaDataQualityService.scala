@@ -33,18 +33,18 @@ object KafkaDataQualityService extends App with LazyLogging with ConfigUtils {
 
 
   logger.info("Building input streams for Kafka data quality service")
-  private val initEventInputStream = createStream(builder, getInputTopic(configName, "init"), streamKeySerde, initEventSerde)
-  private val matchEventInputStream = createStream(builder, getInputTopic(configName, "match"), streamKeySerde, matchEventSerde)
-  private val purchaseEventInputStream = createStream(builder, getInputTopic(configName, "purchase"), streamKeySerde, purchaseEventSerde)
+  val initEventInputStream = createStream(builder, getInputTopic(configName, "init"), streamKeySerde, initEventSerde)
+  val matchEventInputStream = createStream(builder, getInputTopic(configName, "match"), streamKeySerde, matchEventSerde)
+  val purchaseEventInputStream = createStream(builder, getInputTopic(configName, "purchase"), streamKeySerde, purchaseEventSerde)
 
   // Stream processing logic
-  private val (processedInitStream, initStreamSideOutput) = enrichInitStream(initEventInputStream, platformsTable, countriesTable)
+  private val (processedInitStream, initSideOutput) = enrichInitStream(initEventInputStream, platformsTable, countriesTable)
 
-  private val transformOperations = List(CapitalizePlatform)
-  private val initStreamOutput = transformStream(processedInitStream, transformOperations) // at this stage it goes directly to output, and to feed a new KTable
+  val transformOperations = List(CapitalizePlatform)
+  private val transformedInitStream = transformStream(processedInitStream, transformOperations) // at this stage it goes directly to output, and to feed a new KTable
 
-  // Create KTable from initStreamOutput
-  private val transformedInitTable = createInitEventKTable(initStreamOutput)
+  // Create KTable from transformedInitStream
+  val transformedInitTable = createInitEventKTable(transformedInitStream)
 
   // Join other streams with the transformedInitTable and filter based on timestamp
   private val joinedMatchStream = joinInitStream(matchEventInputStream, transformedInitTable, streamKeySerde, matchEventSerde, initEventSerde)
@@ -58,13 +58,13 @@ object KafkaDataQualityService extends App with LazyLogging with ConfigUtils {
   private val (matchStreamOutput, matchStreamSideOutput) = getKeyBranches("match", transformedMatchStream, separateFunction)
   // Send joined streams to respective output topics
   logger.info("Building output streams for Kafka data quality service")
-  sendToTopic(initStreamOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "init"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
-  sendToTopic(matchStreamOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "match"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  sendToTopic(transformedInitStream.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "init"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  //sendToTopic(joinedMatchStream.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "match"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
   //sendToTopic(joinedPurchaseStream.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "purchase"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
 
   //persist all data
-  sendToTopic(initStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "init_side_output"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
-  sendToTopic(matchStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "match_side_output"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  sendToTopic(initSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "init_side_output"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  //sendToTopic(matchStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "match_side_output"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
   //sendToTopic(purchaseStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "purchase_side_output"), streamKeySerde, purchaseEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
 
   val streams = new KafkaStreams(builder.build(), createStreamsConfig(bootstrapServers, schemaRegistryUrl))

@@ -13,25 +13,27 @@ object StreamProcessingUtils extends LazyLogging {
     stream.toTable
   }
   def getValueBranches[T](name: String, input: KStream[String, T], separateFunction: T => Boolean): (KStream[String, T], KStream[String, T]) = {
-    val branchedStream = input.split(Named.as(s"Split-$name"))
-      .branch((_, value) => separateFunction(value), Branched.as("Main"))
-      .defaultBranch(Branched.as("Side"))
+    val branches = input.split(Named.as(s"Split-$name"))
+      .branch((_, value) => separateFunction(value))
+      .branch((_, value) => !separateFunction(value))
+      .noDefaultBranch()
 
-    val mainBranch = branchedStream.get("Main")
-    val sideBranch = branchedStream.get("Side")
+    val mainOutput = branches.head._2
+    val sideOutput = branches.last._2
 
-    (mainBranch.orNull, sideBranch.orNull)
+    (mainOutput, sideOutput)
   }
 
   def getKeyBranches[T](name: String, input: KStream[String, T], separateFunction: String => Boolean): (KStream[String, T], KStream[String, T]) = {
-    val branchedStream = input.split(Named.as(s"Split-$name"))
-      .branch((key, _) => separateFunction(key), Branched.as("Main"))
-      .defaultBranch(Branched.as("Side"))
+    val branches = input.split(Named.as(s"Split-$name"))
+      .branch((key, _) => separateFunction(key))
+      .branch((key, _) => !separateFunction(key))
+      .noDefaultBranch()
 
-    val mainBranch = branchedStream.get("Main")
-    val sideBranch = branchedStream.get("Side")
+    val mainOutput = branches.head._2
+    val sideOutput = branches.last._2
 
-    (mainBranch.orNull, sideBranch.orNull)
+    (mainOutput, sideOutput)
   }
 
   // separateFunction to check if key is null or "invalid"
