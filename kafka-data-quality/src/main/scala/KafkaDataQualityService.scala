@@ -51,21 +51,26 @@ object KafkaDataQualityService extends App with LazyLogging with ConfigUtils {
   private val joinedPurchaseStream = joinInitStream(purchaseEventInputStream, transformedInitTable, streamKeySerde, purchaseEventSerde, initEventSerde)
 
   private val validateTimestampsOp = new ValidateEventsTimestamps[MatchEvent](_.time)
+  private val validatePurchaseTimestampsOp = new ValidateEventsTimestamps[InAppPurchaseEvent](_.time)
 
   private val matchJoinOperations = List(validateTimestampsOp)
+  private val purchaseJoinOperations = List(validatePurchaseTimestampsOp)
   private val transformedMatchStream = transformJoinedStream(joinedMatchStream, matchJoinOperations)
+  private val transformedPurchaseStream = transformJoinedStream(joinedPurchaseStream, purchaseJoinOperations)
 
   private val (matchStreamOutput, matchStreamSideOutput) = getKeyBranches("match", transformedMatchStream, separateFunction)
+  private val (purchaseStreamOutput, purchaseStreamSideOutput) = getKeyBranches("purchase", transformedPurchaseStream, separateFunction)
+
   // Send joined streams to respective output topics
   logger.info("Building output streams for Kafka data quality service")
   sendToTopic(transformedInitStream.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "init"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
-  //sendToTopic(joinedMatchStream.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "match"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
-  //sendToTopic(joinedPurchaseStream.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "purchase"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  sendToTopic(matchStreamOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "match"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  sendToTopic(purchaseStreamOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "purchase"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
 
   //persist all data
   sendToTopic(initSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "init_side_output"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
-  //sendToTopic(matchStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "match_side_output"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
-  //sendToTopic(purchaseStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "purchase_side_output"), streamKeySerde, purchaseEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  sendToTopic(matchStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "match_side_output"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+  sendToTopic(purchaseStreamSideOutput.asInstanceOf[KStream[String ,SpecificRecordBase]], getOutputTopic(configName, "purchase_side_output"), streamKeySerde, purchaseEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
 
   val streams = new KafkaStreams(builder.build(), createStreamsConfig(bootstrapServers, schemaRegistryUrl))
   streams.start()
