@@ -49,4 +49,13 @@ services:
       - miniclip_kafka
       - schema-registry
 
+  kafka-data-quality:
+    container_name: kafka_data_quality
+    build: ./kafka-data-quality # Dockerfile in the kafka-data-quality directory
+    environment:
+      KAFKA_BROKERS: "miniclip_kafka:9092"
+      SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+    depends_on:
+      - miniclip_kafka
+      - schema-registry
 

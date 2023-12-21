@@ -3,7 +3,10 @@ package utils
 import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
+import common.model.ReferenceData
+import common.utils.ConfigUtils
 import model.KafkaProducers
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
 import java.util.concurrent.{Executors, TimeUnit}
 import scala.concurrent.duration.{DAYS, SECONDS}
@@ -14,12 +17,11 @@ object Utils extends LazyLogging {
   // Generates and sends startup data to Kafka topics
   private val userIds = EventGenerator.generateUserIds(100)
 
-  def loadConfig(): Try[(Config, Config, Config)] = Try {
+  def loadConfig(): Try[(Config, Config)] = Try {
     val config = ConfigFactory.load()
     val kafkaConfig = config.getConfig("mock-data.kafka")
     val mockConfig = config.getConfig("mock-data.mock")
-    val topics = kafkaConfig.getConfig("topics")
-    (kafkaConfig, mockConfig, topics)
+    (kafkaConfig, mockConfig)
   }
 
   def setupKafkaProducers(kafkaConfig: Config): KafkaProducers = {
@@ -27,15 +29,19 @@ object Utils extends LazyLogging {
     val schemaRegistryUrl = sys.env.getOrElse("SCHEMA_REGISTRY_URL", kafkaConfig.getString("schemaRegistryUrl"))
 
     logger.info("Setting up Kafka producers with brokers: " + brokers + " and schema registry URL: " + schemaRegistryUrl)
-
     KafkaProducers(
-      initEventProducer = KafkaAvroProducer.createProducer[InitEvent](brokers, schemaRegistryUrl),
-      matchEventProducer = KafkaAvroProducer.createProducer[MatchEvent](brokers, schemaRegistryUrl),
-      inAppPurchaseEventProducer = KafkaAvroProducer.createProducer[InAppPurchaseEvent](brokers, schemaRegistryUrl)
+      initEventProducer = KafkaProducerUtils.createAvroProducer[InitEvent](brokers, schemaRegistryUrl),
+      matchEventProducer = KafkaProducerUtils.createAvroProducer[MatchEvent](brokers, schemaRegistryUrl),
+      inAppPurchaseEventProducer = KafkaProducerUtils.createAvroProducer[InAppPurchaseEvent](brokers, schemaRegistryUrl),
+      globalKtableProducers = KafkaProducerUtils.createStringProducer[String](brokers),
     )
   }
 
-  def generateData(kafkaProducers: KafkaProducers, topics: Config, mockConfig: Config): Unit = {
+  def generateData(kafkaProducers: KafkaProducers, kafkaConfig: Config, mockConfig: Config): Unit = {
+    val topics = kafkaConfig.getConfig("topics")
+    val globalKTableTopics = kafkaConfig.getConfig("global-ktable-topics")
+    populateGlobalKTableTopics(kafkaProducers.globalKtableProducers, globalKTableTopics)
+
     val startupDataDays = mockConfig.getInt("startupDataDays")
     val eventIntervalSeconds = mockConfig.getInt("eventIntervalSeconds")
     val liveDataIntervalSeconds = mockConfig.getInt("liveDataIntervalSeconds")
@@ -46,9 +52,31 @@ object Utils extends LazyLogging {
 
     logger.info("Scheduling live data generation")
     val executor = Executors.newSingleThreadScheduledExecutor()
-    executor.scheduleAtFixedRate(() => generateLiveData(kafkaProducers, topics, eventIntervalSeconds, errorProbability), 0, liveDataIntervalSeconds, TimeUnit.SECONDS)
+    executor.scheduleAtFixedRate(() => generateLiveData(kafkaProducers, topics, liveDataIntervalSeconds, errorProbability), 0, liveDataIntervalSeconds, TimeUnit.SECONDS)
 
     addShutdownHook(kafkaProducers, executor)
+  }
+
+  private def populateGlobalKTableTopics(producer: KafkaProducer[String, String], globalKTableTopics: Config): Unit = {
+    val platformsTopic = globalKTableTopics.getString("platforms")
+    ReferenceData.platforms.foreach { case (key, value) =>
+      producer.send(new ProducerRecord[String, String](platformsTopic, key, value))
+    }
+
+    val countriesTopic = globalKTableTopics.getString("countries")
+    ReferenceData.countries.foreach { case (key, value) =>
+      producer.send(new ProducerRecord[String, String](countriesTopic, key, value))
+    }
+
+    val devicesTopic = globalKTableTopics.getString("devices")
+    ReferenceData.devices.foreach { case (key, value) =>
+      producer.send(new ProducerRecord[String, String](devicesTopic, key, value))
+    }
+
+    val productsTopic = globalKTableTopics.getString("products")
+    ReferenceData.products.foreach { case (key, value) =>
+      producer.send(new ProducerRecord[String, String](productsTopic, key, value))
+    }
   }
 
   private def addShutdownHook(kafkaProducers: KafkaProducers, executor: java.util.concurrent.ExecutorService): Unit = {
@@ -60,7 +88,6 @@ object Utils extends LazyLogging {
   }
 
   private def generateStartupData(kafkaProducers: KafkaProducers, topics: Config, startupDataDays: Int, eventIntervalSeconds: Int, errorProbability: Double): Unit = {
-    logger.info("Generating startup data...")
     val startTime = System.currentTimeMillis() - DAYS.toMillis(startupDataDays)
     val endTime = System.currentTimeMillis()
     val intervalMillis = SECONDS.toMillis(eventIntervalSeconds)
@@ -101,7 +128,7 @@ object Utils extends LazyLogging {
     if (!isLiveData || Random.nextInt(90) == 0) {
       val initEventTime = if (isLiveData) startTime else startTime + Random.nextLong(SECONDS.toMillis(1))
       val initEvent = EventGenerator.generateInitEvent(initEventTime, userId, errorProbability)
-      KafkaAvroProducer.sendRecord(kafkaProducers.initEventProducer, topics.getString("init"), s"$userId", initEvent)
+      KafkaProducerUtils.sendRecord(kafkaProducers.initEventProducer, topics.getString("init"), s"$userId", initEvent)
       logger.debug(s"InitEvent sent for user $userId at $initEventTime")
     }
   }
@@ -112,7 +139,7 @@ object Utils extends LazyLogging {
     (1 to numberOfEvents).foreach { i =>
       val eventTime = startTime + i * SECONDS.toMillis(eventIntervalSeconds)
       val inAppPurchaseEvent = EventGenerator.generateInAppPurchaseEvent(eventTime, userId, errorProbability)
-      KafkaAvroProducer.sendRecord(kafkaProducers.inAppPurchaseEventProducer, topics.getString("inAppPurchase"), s"$userId", inAppPurchaseEvent)
+      KafkaProducerUtils.sendRecord(kafkaProducers.inAppPurchaseEventProducer, topics.getString("in_app_purchase"), s"$userId", inAppPurchaseEvent)
       logger.debug(s"InAppPurchaseEvent sent for user $userId at $eventTime")
     }
   }
@@ -123,7 +150,7 @@ object Utils extends LazyLogging {
     (1 to numberOfEvents).foreach { i =>
       val eventTime = startTime + i * SECONDS.toMillis(eventIntervalSeconds)
       val matchEvent = EventGenerator.generateMatchEvent(eventTime, userId, Random.shuffle(userIds).head, errorProbability)
-      KafkaAvroProducer.sendRecord(kafkaProducers.matchEventProducer, topics.getString("match"), s"$userId", matchEvent)
+      KafkaProducerUtils.sendRecord(kafkaProducers.matchEventProducer, topics.getString("match"), s"$userId", matchEvent)
       logger.debug(s"MatchEvent sent for user $userId at $eventTime")
     }
   }

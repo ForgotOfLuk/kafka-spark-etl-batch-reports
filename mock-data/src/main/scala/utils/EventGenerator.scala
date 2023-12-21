@@ -2,16 +2,17 @@ package utils
 
 import com.miniclip.avro._
 import com.typesafe.scalalogging.LazyLogging
+import common.model.ReferenceData
+
 import scala.util.Random
 
 // EventGenerator object to generate different types of Kafka events
 object EventGenerator extends LazyLogging {
   private val random = new Random()
-  private val platforms = List("Android", "PS5", "GameCube", "Xbox", "Switch")
-  private val devices = (1 to 100).map(_ => java.util.UUID.randomUUID().toString).toList
-  private val productIds = (1 to 10).map(_ => java.util.UUID.randomUUID().toString).toList
-  private val countries = List("USA", "Canada", "Brazil", "UK", "Germany", "France", "Japan", "China", "Australia", "Russia", "India", "South Africa", "Spain", "Italy", "Mexico", "Sweden", "Norway", "Finland", "Denmark", "Netherlands")
-
+  private val platforms = ReferenceData.platforms.keys.toList
+  private val devices = ReferenceData.devices.keys.toList
+  private val productIds = ReferenceData.products.keys.toList
+  private val countries = ReferenceData.countries.keys.toList
   // Generates a list of user IDs with a mix of UUIDs and numeric strings
   def generateUserIds(count: Int): List[String] = {
     (1 to count).map { _ =>

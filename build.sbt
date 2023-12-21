@@ -35,15 +35,25 @@ lazy val mockData = (project in file("mock-data"))
   )
 
 
-lazy val dataProcessing = (project in file("kafka-data-processing"))
+lazy val dataQuality = (project in file("kafka-data-quality"))
   .dependsOn(common)
   .settings(
-    name := "Miniclip-KafkaDataProcessing",
-    libraryDependencies ++= dataProcessingDependencies
+    name := "Miniclip-KafkaDataQuality",
+    libraryDependencies ++= dataQualityDependencies,
+      assembly / mainClass := Some("KafkaDataQualityService"),
+      assembly / assemblyJarName := "kafka-data-quality-assembly.jar",
+      ThisBuild / assemblyMergeStrategy := {
+          case PathList("META-INF", xs @ _*) if xs.nonEmpty && xs.last == "MANIFEST.MF" => MergeStrategy.discard
+          case PathList("META-INF", "io.netty.versions.properties", _*) => MergeStrategy.first
+          case "module-info.class" => MergeStrategy.discard
+          case PathList("META-INF", "versions", "9", "module-info.class", _*) => MergeStrategy.discard // Add this line
+          case "kafka/kafka-version.properties" => MergeStrategy.first
+          case x => MergeStrategy.defaultMergeStrategy(x)
+      }
   )
 
 lazy val root = (project in file("."))
-  .aggregate(common, mockData, dataProcessing)
+  .aggregate(common, mockData, dataQuality)
   .settings(
     name := "Miniclip"
   )

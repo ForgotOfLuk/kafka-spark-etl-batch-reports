@@ -14,7 +14,7 @@ object MockDataService extends LazyLogging {
 
     // Load configurations
     loadConfig() match {
-      case Success((kafkaConfig, mockConfig, topics)) =>
+      case Success((kafkaConfig, mockConfig)) =>
         logger.info("Configurations loaded successfully")
 
         // Setup Kafka producers
@@ -22,7 +22,7 @@ object MockDataService extends LazyLogging {
         logger.info("Kafka producers set up")
 
         // Start data generation process
-        generateData(kafkaProducers, topics, mockConfig)
+        generateData(kafkaProducers, kafkaConfig, mockConfig)
         logger.info("Data generation started")
 
       case Failure(exception) =>

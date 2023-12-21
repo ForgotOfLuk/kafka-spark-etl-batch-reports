@@ -21,14 +21,27 @@ sleep 30
 
 echo "Creating Input Kafka topics..."
 docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic init
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic init_validated
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic init_side_output
 docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic match
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic match_validated
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic match_side_output
 docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic in_app_purchase
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic in_app_purchase_validated
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic in_app_purchase_side_output
+
+echo "Creating GlobalKTable topics..."
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic platforms_topic
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic countries_topic
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic devices_topic
+docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic products_topic
 
 echo "Registering Avro schemas with the Schema Registry..."
 
 function register_schema {
     topic=$1
-    schema_file="common/src/main/scala/common/model/schemas/avro/${topic}.avsc"
+    name=$2
+    schema_file="common/src/main/scala/common/model/schemas/avro/${name}.avsc"
     schema=$(jq -c . < "$schema_file" | jq -s -R -r @json)
     curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
          --data "{\"schema\": $schema}" \
@@ -36,14 +49,18 @@ function register_schema {
     echo " - Schema for ${topic} registered."
 }
 
-register_schema "init"
-register_schema "match"
-register_schema "in_app_purchase"
-
-echo "Waiting for schemas to register..."
-sleep 10
+register_schema "init" "init"
+register_schema "init-validated" "init"
+register_schema "match" "match"
+register_schema "match-validated" "match"
+register_schema "in_app_purchase" "in_app_purchase"
+register_schema "in_app_purchase-validated" "in_app_purchase"
 
 echo "Starting Mock-Data service..."
 docker-compose up -d mock-data
+sleep 30
+
+echo "Starting Kafka Data Quality service..."
+docker-compose up -d kafka-data-quality
 
 echo "Setup complete."

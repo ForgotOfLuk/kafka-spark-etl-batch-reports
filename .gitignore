@@ -29,6 +29,7 @@ project/target/
 *.swp
 *.swo
 .bsp
+.bsp/sbt.json
 .idea
 
 # If using macOS, to ignore Spotlight metadata files
