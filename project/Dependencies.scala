@@ -36,8 +36,6 @@ object Dependencies {
     "org.typelevel" %% "cats-core" % catsVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test,
     "org.apache.kafka" % "kafka-streams-test-utils" % kafkaVersion % Test,
-    "io.github.embeddedkafka" %% "embedded-kafka-schema-registry" % confluentVersion
-
   )
 
   val commonResolvers: Seq[Resolver] = Seq(
