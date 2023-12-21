@@ -3,7 +3,6 @@ package operations
 import org.apache.kafka.streams.kstream.GlobalKTable
 import org.apache.kafka.streams.scala.kstream.KStream
 
-
 class GlobalKTableJoinOperation[K, V, GK, GV, RV](globalTable: GlobalKTable[GK, GV],
                                                   keySelector: (K, V) => GK,
                                                   valueJoiner: (V, GV) => RV) {

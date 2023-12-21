@@ -14,9 +14,9 @@ import scala.util.Try
 
 object StreamEnrichmentOperations extends LazyLogging{
 
-  private def initEventKeySelector(keySelector: InitEvent => String): (String, InitEvent) => String = (_, event) => {
-    keySelector(event)
-  }
+  // Key selector for InitEvent
+  private def initEventKeySelector(keySelector: InitEvent => String): (String, InitEvent) => String = (_, event) => keySelector(event)
+
   private def initEventValueJoiner(valueJoiner: (InitEvent, String) => InitEvent): (InitEvent, String) => InitEvent = (event, name) => {
     Try {
       if (name != null) {
@@ -38,19 +38,21 @@ object StreamEnrichmentOperations extends LazyLogging{
   private val initEventPlatformValueJoiner = initEventValueJoiner((initEvent, name) => initEvent.copy(platform = name))
   private val initEventCountryValueJoiner = initEventValueJoiner((initEvent, name) => initEvent.copy(country = name))
 
-  // This method accepts a list of operations and chains them together
+  // Transforms a stream with a list of operations
   def transformStream[T](initEventInputStream: KStream[String, T], operations: List[StreamOperation[String, T]]): KStream[String, T] = {
     operations.foldLeft(initEventInputStream) { (stream, operation) =>
       operation.apply(stream)
     }
   }
 
+  // Transforms a joined stream with a list of operations
   def transformJoinedStream[T](joinedStream: KStream[String, (T, InitEvent)], operations: List[JoinedStreamOperation[T]]): KStream[String, T] = {
     operations.foldLeft(joinedStream) { (stream, operation) =>
       operation.apply(stream)
     }.mapValues(_._1)
   }
 
+  // Creates a join operator for GlobalKTable
   private def createJoinOperator(table: GlobalKTable[String, String], keySelector: (String, InitEvent) => String, valueJoiner: (InitEvent, String) => InitEvent): GlobalKTableJoinOperation[String, InitEvent, String, String, InitEvent] = {
     new GlobalKTableJoinOperation[String, InitEvent, String, String, InitEvent](
       table,
@@ -58,13 +60,14 @@ object StreamEnrichmentOperations extends LazyLogging{
       valueJoiner
     )
   }
-  private def joinInitEventWithPlatform(table: GlobalKTable[String, String]): GlobalKTableJoinOperation[String, InitEvent, String, String, InitEvent] = {
+
+  private def joinInitEventWithPlatform(table: GlobalKTable[String, String]): GlobalKTableJoinOperation[String, InitEvent, String, String, InitEvent] =
     createJoinOperator(table, initEventPlatformKeySelector, initEventPlatformValueJoiner)
-  }
-  private def joinInitEventWithCountry(table: GlobalKTable[String, String]): GlobalKTableJoinOperation[String, InitEvent, String, String, InitEvent] = {
+
+  private def joinInitEventWithCountry(table: GlobalKTable[String, String]): GlobalKTableJoinOperation[String, InitEvent, String, String, InitEvent] =
     createJoinOperator(table, initEventCountryKeySelector, initEventCountryValueJoiner)
-  }
-  // Method for enriching the init stream
+
+  // Enriches the init stream by joining with platforms and countries tables
   def enrichInitStream(initEventInputStream: KStream[String, InitEvent], platformsTable: GlobalKTable[String, String], countriesTable: GlobalKTable[String, String]): (KStream[String, InitEvent], KStream[String, InitEvent]) = {
     // Define the join operations with the GlobalKTables
     val platformJoinOperation: GlobalKTableJoinOperation[String, InitEvent, String, String, InitEvent] =
