@@ -1,6 +1,6 @@
+import common.model.EventGenerator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import utils.EventGenerator
 
 class EventGeneratorTest extends AnyFlatSpec with Matchers {
 

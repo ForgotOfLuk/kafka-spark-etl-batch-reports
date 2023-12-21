@@ -1,8 +1,7 @@
-package utils
+package common.model
 
 import com.miniclip.avro._
 import com.typesafe.scalalogging.LazyLogging
-import common.model.ReferenceData
 
 import scala.util.Random
 

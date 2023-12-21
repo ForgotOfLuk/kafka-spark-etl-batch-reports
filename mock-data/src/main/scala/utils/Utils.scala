@@ -3,8 +3,7 @@ package utils
 import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.LazyLogging
-import common.model.ReferenceData
-import common.utils.ConfigUtils
+import common.model.{EventGenerator, ReferenceData}
 import model.KafkaProducers
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
