@@ -1,4 +1,4 @@
-package model
+package common.kafka
 
 import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
 import org.apache.kafka.clients.producer.KafkaProducer

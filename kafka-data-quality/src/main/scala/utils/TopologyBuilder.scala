@@ -15,9 +15,10 @@ import org.apache.kafka.streams.scala.kstream.KStream
 import org.apache.kafka.streams.scala.serialization.Serdes
 import org.apache.kafka.streams.scala.serialization.Serdes._
 import utils.GlobalTableUtils.createGlobalTable
-import utils.StreamBuilderUtils.{consumedString, createStream, createValueSerde, sendToTopic}
+import utils.StreamBuilderUtils.{createStream, createValueSerde, sendToTopic}
 import utils.StreamProcessingUtils.{createInitEventKTable, filterKeys}
 import utils.Validation.separateFunction
+import utils.StreamBuilderUtils.consumedString
 
 class TopologyBuilder(builder: StreamsBuilder, configName: String, schemaRegistryUrl: String) extends LazyLogging with ConfigUtils {
 

@@ -1,4 +1,4 @@
-package utils
+package common.kafka.utils
 
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}

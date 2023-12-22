@@ -1,5 +1,6 @@
 import com.typesafe.scalalogging.LazyLogging
-import utils.Utils.{generateData, loadConfig, setupKafkaProducers}
+import common.kafka.utils.Utils.{generateData, setupKafkaProducers}
+import utils.Utils.loadConfig
 
 import scala.util.{Failure, Success}
 
