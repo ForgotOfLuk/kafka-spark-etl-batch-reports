@@ -19,20 +19,6 @@ docker-compose up -d zookeeper miniclip_kafka schema-registry
 echo "Waiting for Kafka to start..."
 sleep 30
 
-echo "Creating Input Kafka topics..."
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic init
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic init_validated
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic init_side_output
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic match
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic match_validated
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic match_side_output
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic in_app_purchase
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic in_app_purchase_validated
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic in_app_purchase_side_output
-
-echo "Creating GlobalKTable topics..."
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic platforms_topic
-docker exec -it miniclip_kafka kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic countries_topic
 
 echo "Registering Avro schemas with the Schema Registry..."
 
@@ -48,11 +34,14 @@ function register_schema {
 }
 
 register_schema "init" "init"
-register_schema "init-validated" "init"
+register_schema "init_validated" "init"
+register_schema "init_side_output" "init"
 register_schema "match" "match"
-register_schema "match-validated" "match"
+register_schema "match_validated" "match"
+register_schema "match_side_output" "match"
 register_schema "in_app_purchase" "in_app_purchase"
-register_schema "in_app_purchase-validated" "in_app_purchase"
+register_schema "in_app_purchase_validated" "in_app_purchase"
+register_schema "in_app_purchase_side_output" "in_app_purchase"
 
 echo "Starting Mock-Data service..."
 docker-compose up -d mock-data

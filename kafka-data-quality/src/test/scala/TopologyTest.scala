@@ -6,17 +6,19 @@ import common.model.EventGenerator
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfter, BeforeAndAfterAll}
-import org.testcontainers.containers.KafkaContainer
+import org.testcontainers.containers.{KafkaContainer, Network}
 import org.testcontainers.utility.DockerImageName
 import schema.registry.SchemaRegistryContainer
 
 import java.time.Duration
 
 class TopologyTest extends AnyFlatSpec with Matchers with BeforeAndAfter with BeforeAndAfterAll {
+  val network: Network = Network.newNetwork()
 
   // Kafka and Schema Registry containers
-  val kafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
-  val schemaRegistryContainer: SchemaRegistryContainer = SchemaRegistryContainer()
+  val kafkaContainer: KafkaContainer = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"))
+    .withNetwork(network)
+  val schemaRegistryContainer: SchemaRegistryContainer = SchemaRegistryContainer(network = network)
 
   // Configuration loading
   val config: Config = ConfigFactory.load()
@@ -36,9 +38,12 @@ class TopologyTest extends AnyFlatSpec with Matchers with BeforeAndAfter with Be
 
   override def beforeAll(): Unit = {
     kafkaContainer.start()
+    Thread.sleep(30000L)
+
     // Connect Schema Registry to the same network as Kafka
-    schemaRegistryContainer.withKafka(kafkaContainer.getNetwork, kafkaContainer.getBootstrapServers)
+    schemaRegistryContainer.withKafka(kafkaContainer.getBootstrapServers)
     schemaRegistryContainer.start()
+    Thread.sleep(30000L)
 
     // Load configuration and setup Kafka producers
     kafkaProducers = Utils.setupKafkaProducers(kafkaConfig)
