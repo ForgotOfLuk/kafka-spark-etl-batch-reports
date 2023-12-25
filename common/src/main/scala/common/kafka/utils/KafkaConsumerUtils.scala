@@ -7,8 +7,8 @@ import org.apache.kafka.common.serialization.StringSerializer
 
 import java.time.Duration
 import java.util.Properties
-import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.{Failure, Success, Try}
+import scala.collection.JavaConverters._
 
 object KafkaConsumerUtils extends LazyLogging {
 

@@ -12,9 +12,10 @@ docker compose down
 echo "Compiling and assembling project..."
 sbt clean compile assembly
 
-echo "Starting Kafka, Zookeeper and Schema Registry..."
+echo "Starting Kafka, Zookeeper, Schema Registry, Spark, and MongoDB..."
 docker-compose build --no-cache #for handling intermediate container issues
-docker-compose up -d zookeeper miniclip_kafka schema-registry
+docker-compose up -d zookeeper miniclip_kafka schema-registry spark-master spark-worker mongodb
+
 
 echo "Waiting for Kafka to start..."
 sleep 30
@@ -49,5 +50,10 @@ sleep 30
 
 echo "Starting Kafka Data Quality service..."
 docker-compose up -d kafka-data-quality
+
+sleep 30
+
+echo "Starting Spark Data Aggregation service..."
+docker-compose up -d spark-daily-batch-aggregation
 
 echo "Setup complete."

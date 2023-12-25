@@ -5,7 +5,7 @@ FROM openjdk:21-ea-25-jdk
 WORKDIR /usr/src/app
 
 # Copy the assembled JAR file into the container
-COPY ./target/scala-2.13/mock-data-assembly.jar /usr/src/app
+COPY ./target/scala-2.12/mock-data-assembly.jar /usr/src/app
 
 # Run the application
 CMD ["java", "-jar", "/usr/src/app/mock-data-assembly.jar"]

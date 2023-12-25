@@ -88,7 +88,7 @@ object Utils extends LazyLogging {
 
     userIds.foreach { userId =>
       // Iterate over the time range in specified intervals
-      LazyList.iterate(startTime)(_ + intervalMillis).takeWhile(_ <= endTime).foreach { eventTime =>
+      Stream.iterate(startTime)(_ + intervalMillis).takeWhile(_ <= endTime).foreach { eventTime =>
         generateAndSendEventsForUser(userId, kafkaProducers, topics, eventTime, eventIntervalSeconds, errorProbability, isLiveData = false)
       }
     }
@@ -120,7 +120,7 @@ object Utils extends LazyLogging {
   // Sends an InitEvent if applicable based on error probability and whether it's live data
   private def sendInitEventIfNeeded(userId: String, kafkaProducers: KafkaProducers, topics: Config, startTime: Long, errorProbability: Double, isLiveData: Boolean): Unit = {
     if (!isLiveData || Random.nextInt(90) == 0) {
-      val initEventTime = if (isLiveData) startTime else startTime + Random.nextLong(SECONDS.toMillis(1))
+      val initEventTime = if (isLiveData) startTime else startTime + (Random.nextLong.abs % SECONDS.toMillis(1))
       val initEvent = EventGenerator.generateInitEvent(initEventTime, userId, errorProbability)
       KafkaProducerUtils.sendRecord(kafkaProducers.initEventProducer, topics.getString("init"), s"$userId", initEvent)
       logger.debug(s"InitEvent sent for user $userId at $initEventTime")

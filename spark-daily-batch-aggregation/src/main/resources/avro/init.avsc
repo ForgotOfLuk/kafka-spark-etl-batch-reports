@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "InitEvent",
+  "namespace": "com.miniclip.avro",
+  "fields": [
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "EventTypeInit",
+        "symbols": ["init"]
+      },
+      "default": "init"
+    },
+    {
+      "name": "time",
+      "type": "long"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "country",
+      "type": "string"
+    },
+    {
+      "name": "platform",
+      "type": "string"
+    }
+  ]
+}

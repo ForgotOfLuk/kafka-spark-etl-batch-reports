@@ -57,7 +57,7 @@ object EventGenerator extends LazyLogging {
     UserPostmatchInfo(randomPositiveLongWithError(errorProbability), randomPositiveLongWithError(errorProbability), chooseRandomWithError(devices, errorProbability, randomWrongString()), chooseRandomWithError(platforms, errorProbability, randomWrongString()))
 
   private def randomPositiveLongWithError(errorProbability: Double, max: Long = 1000): Long =
-    if (random.nextDouble() < errorProbability) random.nextLong() * -1 * 200 else 1 + random.nextLong(max)
+    if (random.nextDouble() < errorProbability) -1 * Random.nextLong.abs * 200 else 1 + (Random.nextLong.abs % max)
 
   private def randomWrongString(length: Int = 5): String =
     Random.alphanumeric.take(length).mkString

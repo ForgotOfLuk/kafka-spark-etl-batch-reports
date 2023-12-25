@@ -22,20 +22,10 @@ class KafkaDataQualityService(bootstrapServers: String, schemaRegistryUrl: Strin
 
       streams
     } match {
-      case Success(streams) =>
+      case Success(_) =>
         logger.info("Kafka data quality service started")
-      // Additional code to manage the streams, if needed
       case Failure(e) =>
         logger.error("Error in Kafka Data Quality Service: ", e)
     }
   }
-}
-
-object KafkaDataQualityServiceApp extends App with ConfigUtils {
-  private val configName = "data-quality"
-  private val bootstrapServers = getBootstrapServers(configName)
-  private val schemaRegistryUrl = getSchemaRegistryUrl(configName)
-
-  val service = new KafkaDataQualityService(bootstrapServers, schemaRegistryUrl)
-  service.start()
 }
