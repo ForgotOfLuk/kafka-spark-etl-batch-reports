@@ -42,8 +42,12 @@ object StreamBuilderUtils extends LazyLogging {
     builder.stream[K, V](sourceTopic)(Consumed.`with`(keySerde, valueSerde))
   }
 
-  // Method to send a stream to a specific topic
-  def sendToTopic[K, V <: SpecificRecordBase](stream: KStream[K, V], destTopic: String, keySerde: Serde[K], valueSerde: Serde[V]): Unit = {
+  def convertToStringStream[V <: SpecificRecordBase](stream: KStream[String, V]): KStream[String, String] = {
+    stream.mapValues(_.toString)
+  }
+
+    // Method to send a stream to a specific topic
+  def sendToTopic[K, V](stream: KStream[K, V], destTopic: String, keySerde: Serde[K], valueSerde: Serde[V]): Unit = {
     Try {
       logger.info(s"Sending stream to topic $destTopic")
       stream.to(destTopic)(Produced.`with`(keySerde, valueSerde))

@@ -83,9 +83,9 @@ services:
     depends_on:
       - spark-master
 
-  spark-daily-batch-aggregation:
+  spark-daily-aggregation:
     build:
-      context: ./spark-daily-batch-aggregation
+      context: ./spark-daily-aggregation
       dockerfile: Dockerfile
     depends_on:
       - spark-master
@@ -94,11 +94,32 @@ services:
       - schema-registry
       - mongodb
     environment:
-      APP_NAME: KafkaToMongoAggregatorService
+      APP_NAME: SparkDailyAggregation
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
       KAFKA_INIT_TOPIC: "init_validated"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
+      MONGO_DB: "timeseriesAggregations"
+      MONGO_COLLECTION: "dailyUserAggregations"
+
+  spark-minute-aggregation:
+    build:
+      context: ./spark-minute-aggregation
+      dockerfile: Dockerfile
+    depends_on:
+      - spark-master
+      - spark-worker
+      - miniclip_kafka
+      - schema-registry
+      - mongodb
+    environment:
+      APP_NAME: SparkMinuteAggregation
+      MASTER_URL: spark://spark-master:7077
+      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_INIT_TOPIC: "init_validated"
+      MONGO_URI: "mongodb://root:example@mongodb:27017"
+      MONGO_DB: "timeseriesAggregations"
+      MONGO_COLLECTION: "minuteUserAggregations"
 
   mongodb:
     container_name: mongodb

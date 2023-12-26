@@ -49,16 +49,35 @@ lazy val dataQuality = (project in file("kafka-data-quality"))
   )
 
 
-// Spark daily batch aggregator project settings
-lazy val sparkDailyBatchAggregation = (project in file("spark-daily-batch-aggregation"))
+// Spark daily aggregator project settings
+lazy val sparkDailyAggregation = (project in file("spark-daily-aggregation"))
   .dependsOn(common)
   .settings(
-      name := "Miniclip-SparkDailyBatchAggregation",
-      // Dependencies specific to the Spark batch aggregator project
-      libraryDependencies ++= sparkBatchAggregatorDependencies,
+      name := "Miniclip-SparkDailyAggregation",
+      // Dependencies specific to the Spark aggregator project
+      libraryDependencies ++= sparkAggregatorDependencies,
       // Assembly plugin settings for building a fat JAR
-      assembly / mainClass := Some("SparkDailyBatchAggregator"),
-      assembly / assemblyJarName := "spark-daily-batch-aggregation-assembly.jar",
+      assembly / mainClass := Some("SparkDailyAggregatorService"),
+      assembly / assemblyJarName := "spark-daily-aggregation-assembly.jar",
+      // or as follows
+      assembly / assemblyOption ~= {
+          _.withIncludeScala(false)
+      },
+      // Handling of merge conflicts during assembly
+      MergeStrategyBuilder.sparkMergeStrategy,
+      Compile / fullClasspath ++= (common / Compile / fullClasspath).value.files
+  )
+
+// Spark daily aggregator project settings
+lazy val sparkMinuteAggregation = (project in file("spark-minute-aggregation"))
+  .dependsOn(common)
+  .settings(
+      name := "Miniclip-SparkMinuteAggregation",
+      // Dependencies specific to the Spark aggregator project
+      libraryDependencies ++= sparkAggregatorDependencies,
+      // Assembly plugin settings for building a fat JAR
+      assembly / mainClass := Some("SparkMinuteAggregatorService"),
+      assembly / assemblyJarName := "spark-minute-aggregation-assembly.jar",
       // or as follows
       assembly / assemblyOption ~= {
           _.withIncludeScala(false)
@@ -70,7 +89,7 @@ lazy val sparkDailyBatchAggregation = (project in file("spark-daily-batch-aggreg
 
 // Root project settings
 lazy val root = (project in file("."))
-  .aggregate(common, mockData, dataQuality, sparkDailyBatchAggregation)
+  .aggregate(common, mockData, dataQuality, sparkDailyAggregation, sparkMinuteAggregation)
   .settings(
     name := "Miniclip"
   )

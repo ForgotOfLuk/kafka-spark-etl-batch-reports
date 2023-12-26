@@ -1,2 +1,0 @@
-name := "Miniclip-SparkDailyBatchAggregation"
-

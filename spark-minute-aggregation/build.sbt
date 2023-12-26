@@ -1,0 +1,2 @@
+name := "Miniclip-SparkMinuteAggregation"
+

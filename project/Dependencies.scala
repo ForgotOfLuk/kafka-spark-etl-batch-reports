@@ -46,8 +46,8 @@ object Dependencies {
     "org.scalaj" %% "scalaj-http" % scalaHttpVersion,
   )
 
-  // Specific dependencies for the sparkDailyBatchAggregation project
-  val sparkBatchAggregatorDependencies: Seq[ModuleID] = Seq(
+  // Specific dependencies for the sparkAggregation projects
+  val sparkAggregatorDependencies: Seq[ModuleID] = Seq(
     "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
     "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,
     "org.apache.spark" %% "spark-streaming" % sparkVersion % Provided,

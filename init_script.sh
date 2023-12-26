@@ -35,13 +35,10 @@ function register_schema {
 }
 
 register_schema "init" "init"
-register_schema "init_validated" "init"
 register_schema "init_side_output" "init"
 register_schema "match" "match"
-register_schema "match_validated" "match"
 register_schema "match_side_output" "match"
 register_schema "in_app_purchase" "in_app_purchase"
-register_schema "in_app_purchase_validated" "in_app_purchase"
 register_schema "in_app_purchase_side_output" "in_app_purchase"
 
 echo "Starting Mock-Data service..."
@@ -50,7 +47,13 @@ sleep 30
 
 echo "Starting Kafka Data Quality service..."
 docker-compose up -d kafka-data-quality
-
 sleep 30
+
+echo "Starting Spark Daily Aggregation Service..."
+docker-compose up -d spark-daily-aggregation
+sleep 30
+
+echo "Starting Spark Minute Aggregation Service..."
+docker-compose up -d spark-minute-aggregation
 
 echo "Setup complete."
