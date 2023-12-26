@@ -6,10 +6,10 @@
     </appender>
 
     <!-- Kafka Logger -->
-    <logger name="org.apache.kafka" level="INFO"/>
+    <logger name="org.apache.kafka" level="ERROR"/>
 
     <!-- Root Logger -->
-    <root level="info">
+    <root level="ERROR">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>

@@ -53,7 +53,4 @@ docker-compose up -d kafka-data-quality
 
 sleep 30
 
-echo "Starting Spark Data Aggregation service..."
-docker-compose up -d spark-daily-batch-aggregation
-
 echo "Setup complete."
