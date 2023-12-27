@@ -75,7 +75,9 @@ lazy val sparkDailyAggregation = (project in file("spark-daily-aggregation"))
     },
     // Handling of merge conflicts during assembly
     assembly / assemblyMergeStrategy := sparkDailyMergeStrategy,
-    Compile / fullClasspath ++= (sparkCommon / Compile / fullClasspath).value.files
+    Compile / fullClasspath ++= (sparkCommon / Compile / fullClasspath).value.files,
+    Test / fork := true,
+    javaOptions ++= Seq("-Xms8G", "-Xmx8G", "-XX:MaxPermSize=4048M", "-XX:+CMSClassUnloadingEnabled")
   )
 
 // Spark daily aggregator project settings

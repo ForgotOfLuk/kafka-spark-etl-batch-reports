@@ -23,8 +23,7 @@ trait SparkUtils extends LazyLogging{
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaConfig.kafkaBrokers)
       .option("subscribe", topic)
-      .option("startingOffsets", "earliest")
-      .option("endingOffsets", "latest")
+      .options(startingTimestampOption)
       .load()
   }
 

@@ -21,11 +21,11 @@ class MongoUtils(mongoConfig: MongoConfig) {
   private val database: MongoDatabase = mongoClient.getDatabase(mongoConfig.mongoDb)
   private val collection: MongoCollection[Document] = database.getCollection(mongoConfig.mongoCollection)
 
-  private def retrieveLatestTimestamp(): Option[String] = {
+  def retrieveLatestTimestamp(): Option[String] = {
     val future = collection.find()
-      .sort(descending("day"))
+      .sort(descending("timestamp"))
       .limit(1)
-      .projection(include("day"))
+      .projection(include("timestamp"))
       .toFuture()
 
     Try(Await.result(future, 10 seconds)) match {
@@ -34,15 +34,6 @@ class MongoUtils(mongoConfig: MongoConfig) {
       case Failure(exception) =>
         println(s"Error retrieving latest timestamp: ${exception.getMessage}")
         None
-    }
-  }
-
-  def retrieveLatestTimestampConfig(): Map[String, String] = {
-    val timestampOption = retrieveLatestTimestamp()
-    if (timestampOption.isDefined) {
-      Map("startingTimestamp" -> timestampOption.get)
-    } else {
-      Map("startingOffsets" -> "earliest") // Default to earliest if no timestamp found
     }
   }
 }
