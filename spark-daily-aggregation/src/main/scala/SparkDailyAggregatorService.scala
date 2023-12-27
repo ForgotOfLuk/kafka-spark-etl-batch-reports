@@ -1,77 +1,35 @@
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, expr, from_json}
-import org.apache.spark.sql.streaming.Trigger
-import org.apache.spark.sql.types.{LongType, StringType, StructType}
+import com.typesafe.scalalogging.LazyLogging
+import common.model.SparkConfig
+import common.utils.SparkUtils
+import org.apache.spark.sql.SparkSession
+import utils.PipelineUtils.aggregateData
 
-object SparkDailyAggregatorService {
+object SparkDailyAggregatorService extends SparkUtils with LazyLogging {
   def main(args: Array[String]): Unit = {
-    val appName = sys.env.getOrElse("APP_NAME", "DefaultAppName")
-    val masterUrl = sys.env.getOrElse("MASTER_URL", "local[*]")
-    val kafkaBrokers = sys.env.getOrElse("KAFKA_BROKERS", "miniclip_kafka:9092")
-    val topic = sys.env.getOrElse("KAFKA_INIT_TOPIC", "init_validated")
-    val mongoUri = sys.env.getOrElse("MONGO_URI", "mongodb://mongodb:27017")
-    val mongoCollection = sys.env.getOrElse("MONGO_COLLECTION", "mongodb://mongodb:27017")
-    val mongoDb = sys.env.getOrElse("MONGO_DB", "mongodb://mongodb:27017")
+    logger.info("Starting SparkDailyAggregatorService...")
+    val config = SparkConfig.fromEnv()
 
+    // Initialize Spark Session
     val spark = SparkSession.builder
-      .appName(appName)
-      .master(masterUrl)
-      .config("spark.mongodb.write.connection.uri", mongoUri)
+      .appName(config.appName)
+      .master(config.masterUrl)
+      .config("spark.mongodb.write.connection.uri", config.mongoConfig.mongoUri)
       .getOrCreate()
 
-    // Configure logging
-    spark.sparkContext.setLogLevel("WARN")
+    // Read from Kafka topic and add watermark
+    val kafkaDF = readFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic)
 
-    val kafkaDF = readFromKafka(spark, kafkaBrokers, topic)
+    // Transforming initial event data
+    val transformedDF = transformInitEventDataFrame(kafkaDF)
 
-    val transformedDF = transformDataFrame(kafkaDF)
-
-    // Print Kafka Stream to Console
-    transformedDF.writeStream
-      .format("console")
-      .trigger(Trigger.ProcessingTime("20 seconds"))
-      .start()
+    // Aggregate data and format for MongoDB
+    val aggregatedDF = aggregateData(transformedDF)
 
     // Write Transformed Data to MongoDB
-    writeToMongoDB(transformedDF, mongoUri, mongoCollection, mongoDb)
+    writeToMongoDB(aggregatedDF, config.mongoConfig)
 
-    spark.streams.awaitAnyTermination()
+    // End Batch Spark session
+    spark.stop()
   }
 
-  def readFromKafka(spark: SparkSession, brokers: String, topic: String): DataFrame = {
-    spark.readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", brokers)
-      .option("subscribe", topic)
-      .option("startingOffsets", "earliest")
-      .load()
-  }
-
-  def transformDataFrame(df: DataFrame): DataFrame = {
-    // Define the schema corresponding to the JSON data
-    val schema = new StructType()
-      .add("eventType", StringType, nullable = true)
-      .add("time", LongType, nullable = true)
-      .add("userId", StringType, nullable = true)
-      .add("country", StringType, nullable = true)
-      .add("platform", StringType, nullable = true)
-
-    df.select(
-        col("key").cast("string").as("_id"),
-        from_json(col("value").cast("string"), schema).as("jsonData")
-      )
-      .select("_id", "jsonData.*")  // Flatten the structure
-  }
-
-  def writeToMongoDB(df: DataFrame, mongoUri: String, mongoCollection: String, mongoDb: String): Unit = {
-    df.writeStream
-      .format("mongodb")
-      .option("uri", mongoUri)
-      .option("collection", mongoCollection)
-      .option("database", mongoDb)
-      .option("checkpointLocation", "/app")
-      .outputMode("append")
-      .start()
-      .awaitTermination()
-  }
 }

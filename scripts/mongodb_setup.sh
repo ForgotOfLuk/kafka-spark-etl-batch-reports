@@ -17,7 +17,7 @@ function create_time_series_collection {
 }
 
 # Create the Database and Collections
-create_time_series_collection "timeseriesAggregations" "dailyUserAggregations" "time" "157680000" #5 years
-create_time_series_collection "timeseriesAggregations" "minuteUserAggregations" "time" "2592000" #30 days
+create_time_series_collection "timeseriesAggregations" "dailyUserAggregations" "timestamp" "157680000" #5 years
+create_time_series_collection "timeseriesAggregations" "minuteUserAggregations" "timestamp" "2592000" #30 days
 
 echo "Time Series Collections Created."

@@ -19,7 +19,6 @@ docker-compose up -d zookeeper miniclip_kafka schema-registry spark-master spark
 
 echo "Waiting for Containers to start..."
 sleep 30
-
 echo "Creating Time Series Collections in MongoDB..."
 
 # Function to create a time series collection
@@ -27,18 +26,22 @@ function create_time_series_collection {
     db=$1
     collection=$2
     time_field=$3
-    ttlSeconds=$4
+    meta_field=$4
+    ttl_seconds=$5
 
-    docker exec mongodb mongo --eval \
+    docker exec mongodb mongosh -u root -p example --authenticationDatabase admin --eval \
     "db.createCollection('$collection', {
-        timeseries: { timeField: '$time_field' },
-        expireAfterSeconds: $ttlSeconds   # Optional: TTL for data (5 year in this case)
-    })" $db
+        timeseries: {
+            timeField: '$time_field'
+            metaField: '$meta_field'
+          },
+        expireAfterSeconds: $ttl_seconds
+    })" $db 2>/dev/null
 }
 
 # Create the Database and Collections
-create_time_series_collection "timeseriesAggregations" "dailyUserAggregations" "time" "157680000" #5 years
-create_time_series_collection "timeseriesAggregations" "minuteUserAggregations" "time" "2592000" #30 days
+create_time_series_collection "timeseriesAggregations" "dailyUserAggregations" "timestamp" "userData" "157680000" #5 years
+#create_time_series_collection "timeseriesAggregations" "minuteUserAggregations" "timestamp" "2592000" #30 days
 
 echo "Time Series Collections Created."
 
@@ -68,13 +71,13 @@ sleep 30
 
 echo "Starting Kafka Data Quality service..."
 docker-compose up -d kafka-data-quality
-sleep 30
+sleep 90
 
 echo "Starting Spark Daily Aggregation Service..."
 docker-compose up -d spark-daily-aggregation
-sleep 30
+#sleep 30
 
-echo "Starting Spark Minute Aggregation Service..."
-docker-compose up -d spark-minute-aggregation
+#echo "Starting Spark Minute Aggregation Service..."
+#docker-compose up -d spark-minute-aggregation
 
 echo "Setup complete."

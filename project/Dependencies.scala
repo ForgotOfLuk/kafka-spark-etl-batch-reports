@@ -47,16 +47,24 @@ object Dependencies {
   )
 
   // Specific dependencies for the sparkAggregation projects
-  val sparkAggregatorDependencies: Seq[ModuleID] = Seq(
+  val sparkDependencies: Seq[ModuleID] = Seq(
+    "org.mongodb.spark" %% "mongo-spark-connector" % mongoSparkVersion
+  )
+
+  // Specific dependencies for the sparkAggregation projects
+  val sparkProvidedDependencies: Seq[ModuleID] = Seq(
     "org.apache.spark" %% "spark-core" % sparkVersion % Provided,
     "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,
     "org.apache.spark" %% "spark-streaming" % sparkVersion % Provided,
     "org.apache.spark" %% "spark-avro" % sparkVersion % Provided,
     "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % Provided,
-    "org.mongodb.spark" %% "mongo-spark-connector" % mongoSparkVersion,
-
     // Test dependencies
     "org.scalatest" %% "scalatest" % scalatestVersion % Test
+  )
+
+  // Specific dependencies for the sparkDailyAggregation projects
+  val sparkDailyDependencies: Seq[ModuleID] = Seq(
+    "org.mongodb.scala" %% "mongo-scala-driver" % "4.9.0"
   )
 
   val commonResolvers: Seq[Resolver] = Seq(
