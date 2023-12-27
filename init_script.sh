@@ -17,9 +17,30 @@ docker-compose build --no-cache #for handling intermediate container issues
 docker-compose up -d zookeeper miniclip_kafka schema-registry spark-master spark-worker mongodb
 
 
-echo "Waiting for Kafka to start..."
+echo "Waiting for Containers to start..."
 sleep 30
 
+echo "Creating Time Series Collections in MongoDB..."
+
+# Function to create a time series collection
+function create_time_series_collection {
+    db=$1
+    collection=$2
+    time_field=$3
+    ttlSeconds=$4
+
+    docker exec mongodb mongo --eval \
+    "db.createCollection('$collection', {
+        timeseries: { timeField: '$time_field' },
+        expireAfterSeconds: $ttlSeconds   # Optional: TTL for data (5 year in this case)
+    })" $db
+}
+
+# Create the Database and Collections
+create_time_series_collection "timeseriesAggregations" "dailyUserAggregations" "time" "157680000" #5 years
+create_time_series_collection "timeseriesAggregations" "minuteUserAggregations" "time" "2592000" #30 days
+
+echo "Time Series Collections Created."
 
 echo "Registering Avro schemas with the Schema Registry..."
 
