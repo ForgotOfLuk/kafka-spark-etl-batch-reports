@@ -1,7 +1,6 @@
 package utils
 
 import com.typesafe.scalalogging.LazyLogging
-import common.model.MongoConfig
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, countDistinct, date_trunc, struct}
 
@@ -13,9 +12,9 @@ object PipelineUtils extends LazyLogging{
     logger.info("Aggregating Data")
     // Perform the aggregation
     df
-      .withColumn("day", date_trunc("day", col("timestamp")))
+      .withColumn("day", date_trunc("day", col("date"))).as("day")
       .groupBy(
-        date_trunc("day", col("timestamp")).as("day"),
+        col("day"),
         col("country"),
         col("platform")
       )
@@ -25,14 +24,5 @@ object PipelineUtils extends LazyLogging{
   }.getOrElse {
     logger.error("Aggregation failed")
     throw new RuntimeException("Failed to aggregate DataFrame with watermark")
-  }
-
-  def getStartEndPointConfig(mongoConfig: MongoConfig): Map[String, String] = {
-    val timestampOption = MongoUtils(mongoConfig).retrieveLatestTimestamp()
-    if (timestampOption.isDefined) {
-      Map("startingTimestamp" -> timestampOption.get, "endingTimestamp" -> System.currentTimeMillis().toString)
-    } else {
-      Map("startingOffsets" -> "earliest", "endingOffsets" -> "latest") // Default to earliest if no timestamp found
-    }
   }
 }

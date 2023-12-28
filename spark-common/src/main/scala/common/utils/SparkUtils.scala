@@ -23,7 +23,8 @@ trait SparkUtils extends LazyLogging{
       .format("kafka")
       .option("kafka.bootstrap.servers", kafkaConfig.kafkaBrokers)
       .option("subscribe", topic)
-      .options(startingTimestampOption)
+      .option(kafkaConfig.offsetConfigKey, kafkaConfig.offsetConfigValue)
+      .option("endingOffsets", "latest")
       .load()
   }
 
@@ -41,7 +42,7 @@ trait SparkUtils extends LazyLogging{
         from_json(col("value").cast("string"), schema).as("jsonData")
       )
       .select("_id", "jsonData.*")
-      .withColumn("timestamp", col("time").cast(TimestampType))
+      .withColumn("timestamp", (col("time")/1000).cast(TimestampType))
       .withColumn("date", to_date(col("timestamp")))
   }.getOrElse {
     logger.error("Transformation failed")

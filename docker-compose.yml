@@ -117,6 +117,8 @@ services:
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
       KAFKA_INIT_TOPIC: "init_validated"
+      KAFKA_MATCH_TOPIC: "match_validated"
+      KAFKA_PURCHASE_TOPIC: "in_app_purchase_validated"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "minuteUserAggregations"

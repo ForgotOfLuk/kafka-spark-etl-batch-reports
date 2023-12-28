@@ -29,7 +29,7 @@ lazy val sparkCommon = (project in file("spark-common"))
     resolvers ++= commonResolvers,
     name := "Miniclip-SparkCommon",
     // Common dependencies for all subprojects
-    libraryDependencies ++= sparkDependencies ++ sparkProvidedDependencies,
+    libraryDependencies ++= sparkProvidedDependencies,
   )
 
 // Mock data project settings
@@ -75,9 +75,7 @@ lazy val sparkDailyAggregation = (project in file("spark-daily-aggregation"))
     },
     // Handling of merge conflicts during assembly
     assembly / assemblyMergeStrategy := sparkDailyMergeStrategy,
-    Compile / fullClasspath ++= (sparkCommon / Compile / fullClasspath).value.files,
-    Test / fork := true,
-    javaOptions ++= Seq("-Xms8G", "-Xmx8G", "-XX:MaxPermSize=4048M", "-XX:+CMSClassUnloadingEnabled")
+    Compile / fullClasspath ++= (sparkCommon / Compile / fullClasspath).value.files
   )
 
 // Spark daily aggregator project settings

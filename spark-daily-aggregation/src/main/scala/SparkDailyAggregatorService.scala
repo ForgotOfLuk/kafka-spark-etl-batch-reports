@@ -2,15 +2,12 @@ import com.typesafe.scalalogging.LazyLogging
 import common.model.SparkConfig
 import common.utils.SparkUtils
 import org.apache.spark.sql.SparkSession
-import utils.MongoUtils
-import utils.PipelineUtils.{aggregateData, getStartEndPointConfig}
+import utils.PipelineUtils.aggregateData
 
 object SparkDailyAggregatorService extends SparkUtils with LazyLogging {
   def main(args: Array[String]): Unit = {
     logger.info("Starting SparkDailyAggregatorService...")
     val config = SparkConfig.fromEnv()
-
-    val lastTimestamp = getStartEndPointConfig(config.mongoConfig)
 
     // Initialize Spark Session
     val spark = SparkSession.builder
@@ -20,7 +17,7 @@ object SparkDailyAggregatorService extends SparkUtils with LazyLogging {
       .getOrCreate()
 
     // Read from Kafka topic and add watermark
-    val kafkaDF = readFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic, lastTimestamp)
+    val kafkaDF = readFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic)
 
     // Transforming initial event data
     val transformedDF = transformInitEventDataFrame(kafkaDF)
@@ -34,5 +31,4 @@ object SparkDailyAggregatorService extends SparkUtils with LazyLogging {
     // End Batch Spark session
     spark.stop()
   }
-
 }
