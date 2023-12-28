@@ -1,8 +1,8 @@
 import com.typesafe.scalalogging.LazyLogging
 import common.model.SparkConfig
 import common.utils.SparkUtils
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.functions.{col, countDistinct, date_trunc, struct}
+import org.apache.spark.sql.{DataFrame, SparkSession, functions}
+import org.apache.spark.sql.functions.{col, count, countDistinct, date_trunc, struct, when, window}
 
 import scala.util.Try
 
@@ -19,36 +19,58 @@ object SparkMinuteAggregatorService extends SparkUtils with LazyLogging {
       .getOrCreate()
 
     // Read from Kafka topic and add watermark
-    val kafkaInitDF = readFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic)
-    val kafkaMatchDF = readFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.matchEventTopic)
-    val kafkaPurchaseDF = readFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.purchaseEventTopic)
+    val kafkaInitDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic)
+      .withWatermark("timestamp", "2 minutes")
+    val kafkaMatchDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.matchEventTopic)
+      .withWatermark("timestamp", "2 minutes")
+    val kafkaPurchaseDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.purchaseEventTopic)
+      .withWatermark("timestamp", "2 minutes")
 
     // Transforming initial event data
-    val transformedDF = transformInitEventDataFrame(kafkaInitDF)
+    val transformedInitDF = transformInitEventDataFrame(kafkaInitDF)
+    val transformedMatchDF = transformMatchEventDataFrame(kafkaMatchDF)
+    val transformedPurchaseDF = transformPurchaseEventDataFrame(kafkaPurchaseDF)
 
-    // Aggregate data and format for MongoDB
-    val aggregatedDF = aggregateData(transformedDF)
 
-    // Write Transformed Data to MongoDB
-    writeToMongoDB(aggregatedDF, config.mongoConfig)
+    // Aggregating data
+    val aggregatedDF = aggregateData(transformedPurchaseDF, transformedMatchDF, transformedInitDF)
 
     // End Batch Spark session
-    spark.stop()
+    writeStreamToMongoDB(aggregatedDF, config.mongoConfig)
+
+    spark.streams.awaitAnyTermination()
   }
 
-  def aggregateData(df: DataFrame): DataFrame = Try {
+  def aggregateData(purchaseDF: DataFrame, matchDF: DataFrame, initDF: DataFrame): DataFrame = Try {
     logger.info("Aggregating Data")
-    // Perform the aggregation
-    df
-      .withColumn("day", date_trunc("day", col("date"))).as("day")
-      .groupBy(
-        col("day"),
-        col("country"),
-        col("platform")
+    // Join the DataFrames
+    val joinedDF = purchaseDF
+      .join(matchDF, Seq("userId"), "left")
+      .join(initDF, Seq("userId"), "left")
+      .withWatermark("timestamp", "2 minutes")
+
+    // Aggregate data for total counts and sums
+    val totalAggregates = joinedDF
+      .groupBy(window(col("timestamp"), "1 minute"))
+      .agg(
+        count("purchase_value").as("totalPurchaseCount"),
+        functions.sum("purchase_value").as("totalRevenue"),
+        countDistinct("userId").as("totalDistinctUsers")
       )
-      .agg(countDistinct("userId").as("numberOfUsers"))
-      .withColumn("userData", struct(col("numberOfUsers"), col("country"), col("platform")))
-      .select(col("day").as("timestamp"), col("userData"))
+      .withWatermark("timestamp", "2 minutes")
+
+    // Revenue by country and matches by country
+    val countryAggregates = joinedDF
+      .groupBy(window(col("timestamp"), "1 minute"), col("country"))
+      .agg(
+        functions.sum("purchase_value").as("revenueByCountry"),
+        count(when(col("eventType") === "match", 1)).as("matchesByCountry")
+      )
+      .withWatermark("timestamp", "2 minutes")
+
+    // Joining the aggregated results
+    totalAggregates.join(countryAggregates, "window")
+      .withWatermark("timestamp", "2 minutes")
   }.getOrElse {
     logger.error("Aggregation failed")
     throw new RuntimeException("Failed to aggregate DataFrame with watermark")
