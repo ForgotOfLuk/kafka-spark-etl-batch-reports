@@ -18,7 +18,7 @@ object SparkConfig {
     val offsetConfigKey = sys.env.getOrElse("OFFSET_CONFIG_KEY", "startingOffsets")
     val offsetConfigValue = sys.env.getOrElse("OFFSET_CONFIG_VALUE", "earliest")
 
-    val kafkaConfig = KafkaConfig(kafkaBrokers, initEventTopic, offsetConfigKey, offsetConfigValue, matchEventTopic, purchaseEventTopic)
+    val kafkaConfig = KafkaConfig(kafkaBrokers, offsetConfigKey, offsetConfigValue, initEventTopic, matchEventTopic, purchaseEventTopic)
     val mongoConfig = MongoConfig(mongoUri, mongoCollection, mongoDb)
 
     SparkConfig(appName, masterUrl, kafkaConfig, mongoConfig)

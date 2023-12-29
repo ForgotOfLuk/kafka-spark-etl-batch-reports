@@ -4,10 +4,10 @@ import com.typesafe.scalalogging.LazyLogging
 import common.model.data.SparkSchemas
 import common.model.{KafkaConfig, MongoConfig}
 import org.apache.spark.sql.functions.{col, from_json, to_date}
-import org.apache.spark.sql.types.{DoubleType, IntegerType, LongType, StringType, StructType, TimestampType}
+import org.apache.spark.sql.types.{StructType, TimestampType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 trait SparkUtils extends LazyLogging{
   def readStreamFromKafkaTopic(spark: SparkSession, kafkaConfig: KafkaConfig, topic: String): DataFrame = {
@@ -35,18 +35,22 @@ trait SparkUtils extends LazyLogging{
    * @param eventType The name of the event.
    * @return Transformed DataFrame with structured columns.
    */
-  private def transformDataFrame(df: DataFrame, schema: StructType, eventType: String): DataFrame = Try {
-    logger.info(s"Transforming DataFrame for $eventType events")
-    df.select(
-        col("key").cast("string").as("_id"),
-        from_json(col("value").cast("string"), schema).as("jsonData")
-      )
-      .select("_id", "jsonData.*")
-      .withColumn("timestamp", (col("time") / 1000).cast(TimestampType))
-      .withColumn("date", to_date(col("timestamp")))
-  }.getOrElse {
-    logger.error(s"Transformation failed for $eventType events")
-    throw new RuntimeException(s"Failed to transform DataFrame for $eventType events")
+  private def transformDataFrame(df: DataFrame, schema: StructType, eventType: String): DataFrame = {
+    Try {
+      logger.info(s"Transforming DataFrame for $eventType events")
+      df.select(
+          col("key").cast("string").as("_id"),
+          from_json(col("value").cast("string"), schema).as("jsonData")
+        ).select("_id", "jsonData.*")
+        .withColumn("timestamp", (col("time") / 1000).cast(TimestampType))
+        .withColumn("date", to_date(col("timestamp")))
+    } match {
+      case Failure(exception) =>
+        logger.error(s"Transformation failed for $eventType events", exception)
+        throw new RuntimeException(s"Failed to transform DataFrame for $eventType events", exception)
+      case Success(result) =>
+        result
+    }
   }
 
   def transformInitEventDataFrame(df: DataFrame): DataFrame = transformDataFrame(df, SparkSchemas.initEventSchema, "initEvent")
@@ -61,7 +65,8 @@ trait SparkUtils extends LazyLogging{
       .option("uri", mongoConfig.mongoUri)
       .option("collection", mongoConfig.mongoCollection)
       .option("database", mongoConfig.mongoDb)
-      .option("checkpointLocation", "/app")
+      .option("checkpointLocation", "/tmp/")
+      .option("forceDeleteTempCheckpointLocation", "true")
       .outputMode("append")
       .start()
       .awaitTermination()

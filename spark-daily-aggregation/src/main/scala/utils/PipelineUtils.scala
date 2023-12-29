@@ -12,7 +12,7 @@ object PipelineUtils extends LazyLogging{
     logger.info("Aggregating Data")
     // Perform the aggregation
     df
-      .withColumn("day", date_trunc("day", col("date"))).as("day")
+      .withColumn("day", date_trunc("day", col("date")))
       .groupBy(
         col("day"),
         col("country"),

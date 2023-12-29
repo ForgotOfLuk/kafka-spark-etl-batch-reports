@@ -5,6 +5,10 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
 
   miniclip_kafka:
     container_name: miniclip_kafka
@@ -24,6 +28,10 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
 
   schema-registry:
     container_name: schema-registry
@@ -38,6 +46,10 @@ services:
     depends_on:
       - zookeeper
       - miniclip_kafka
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
 
   mock-data:
     container_name: miniclip_mock_data
@@ -48,6 +60,10 @@ services:
     depends_on:
       - miniclip_kafka
       - schema-registry
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
 
   kafka-data-quality:
     container_name: kafka_data_quality
@@ -58,6 +74,10 @@ services:
     depends_on:
       - miniclip_kafka
       - schema-registry
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
 
   spark-master:
     container_name: spark-master
@@ -91,7 +111,6 @@ services:
       - spark-master
       - spark-worker
       - miniclip_kafka
-      - schema-registry
       - mongodb
     environment:
       APP_NAME: SparkDailyAggregation
@@ -101,6 +120,8 @@ services:
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "dailyUserAggregations"
+    volumes:
+      - ./spark_daily_checkpoint:/app/data
 
   spark-minute-aggregation:
     build:
@@ -110,7 +131,6 @@ services:
       - spark-master
       - spark-worker
       - miniclip_kafka
-      - schema-registry
       - mongodb
     environment:
       APP_NAME: SparkMinuteAggregation
@@ -122,6 +142,8 @@ services:
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "minuteUserAggregations"
+    volumes:
+      - ./spark_daily_checkpoint:/app/data
 
   mongodb:
     container_name: mongodb
@@ -133,6 +155,10 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
 
 volumes:
   mongodb_data:

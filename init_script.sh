@@ -41,7 +41,7 @@ function create_time_series_collection {
 
 # Create the Database and Collections
 create_time_series_collection "timeseriesAggregations" "dailyUserAggregations" "timestamp" "userData" "157680000" #5 years
-#create_time_series_collection "timeseriesAggregations" "minuteUserAggregations" "timestamp" "2592000" #30 days
+create_time_series_collection "timeseriesAggregations" "minuteUserAggregations" "timestamp" "2592000" #30 days
 
 echo "Time Series Collections Created."
 
@@ -71,13 +71,13 @@ sleep 30
 
 echo "Starting Kafka Data Quality service..."
 docker-compose up -d kafka-data-quality
-sleep 90
+#sleep 90
 
 echo "Starting Spark Daily Aggregation Service..."
-docker-compose up -d spark-daily-aggregation
+#docker-compose up -d spark-daily-aggregation
 #sleep 30
 
-#echo "Starting Spark Minute Aggregation Service..."
+echo "Starting Spark Minute Aggregation Service..."
 #docker-compose up -d spark-minute-aggregation
 
 echo "Setup complete."
