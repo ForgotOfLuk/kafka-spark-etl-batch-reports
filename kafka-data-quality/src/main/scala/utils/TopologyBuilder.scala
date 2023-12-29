@@ -6,7 +6,8 @@ import com.typesafe.scalalogging.LazyLogging
 import common.utils.ConfigUtils
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import operations.StreamEnrichmentOperations.{enrichInitStream, joinInitStream, transformJoinedStream, transformStream}
-import operations.stream.{CapitalizePlatform, ValidateEventsTimestamps}
+import operations.join.ValidateEventsTimestamps
+import operations.stream.CapitalizePlatform
 import org.apache.avro.specific.SpecificRecordBase
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.streams.Topology

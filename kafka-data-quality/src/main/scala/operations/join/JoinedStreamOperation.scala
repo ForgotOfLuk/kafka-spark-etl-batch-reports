@@ -1,4 +1,4 @@
-package operations.stream
+package operations.join
 
 import com.miniclip.avro.InitEvent
 import org.apache.kafka.streams.scala.kstream.KStream

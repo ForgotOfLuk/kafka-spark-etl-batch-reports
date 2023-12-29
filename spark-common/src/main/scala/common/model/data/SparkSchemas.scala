@@ -2,9 +2,15 @@ package common.model.data
 
 import org.apache.spark.sql.types.{LongType, StringType, StructType, DoubleType, IntegerType}
 
+/**
+ * Object to define Spark schemas for various event types.
+ */
 object SparkSchemas {
-  // Schema definitions
 
+  /**
+   * Defines the schema for initialization events.
+   * @return StructType representing the schema.
+   */
   def initEventSchema: StructType = new StructType()
     .add("eventType", StringType, nullable = true)
     .add("time", LongType, nullable = true)
@@ -12,6 +18,10 @@ object SparkSchemas {
     .add("country", StringType, nullable = true)
     .add("platform", StringType, nullable = true)
 
+  /**
+   * Defines the schema for purchase events.
+   * @return StructType representing the schema.
+   */
   def purchaseEventSchema: StructType = new StructType()
     .add("eventType", StringType, nullable = true)
     .add("time", LongType, nullable = true)
@@ -19,6 +29,10 @@ object SparkSchemas {
     .add("userId", StringType, nullable = true)
     .add("productId", StringType, nullable = true)
 
+  /**
+   * Defines the schema for match events, including nested post-match information.
+   * @return StructType representing the schema.
+   */
   def matchEventSchema: StructType = {
     val postmatchInfoSchema = new StructType()
       .add("coinBalanceAfterMatch", IntegerType, nullable = true)
