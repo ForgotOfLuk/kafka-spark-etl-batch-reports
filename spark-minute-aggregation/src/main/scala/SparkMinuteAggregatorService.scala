@@ -55,7 +55,7 @@ object SparkMinuteAggregatorService extends SparkUtils with LazyLogging {
       .withColumn("userData", struct(col("totalPurchaseValue"), col("purchaseCount")))
       //date_trunc to the minute for good looking information on the db
       .withColumn("timestamp", date_trunc("minute", col("formattedTimestamp")))
-      //select fields to insert on the
+      //select fields to insert on the db
       .select(col("timestamp"), col("userData"))
   }
 }
