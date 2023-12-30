@@ -2,29 +2,33 @@ package aggregation
 
 import org.apache.spark.sql.{Column, DataFrame}
 import org.apache.spark.sql.functions.{array_distinct, _}
-
 import scala.util.Try
 import com.typesafe.scalalogging.LazyLogging
 import common.utils.AggregationUtils.aggregateDataFrame
 
-// Object containing aggregation functions
+/**
+ * Object containing functions for aggregating data in different ways.
+ * This includes aggregations for enriched purchase data and user activity data.
+ */
 object AggregationFunctions extends LazyLogging {
 
-  // Aggregates enriched purchase DataFrame with country-wise revenue
+  /**
+   * Aggregates enriched purchase DataFrame with country-wise revenue.
+   * Calculates the total revenue per country from the enriched purchase data.
+   *
+   * @param enrichedPurchaseDF DataFrame containing enriched purchase data.
+   * @return Try[DataFrame] with aggregated data including country and revenue.
+   */
   def aggregateEnrichedPurchaseDF(enrichedPurchaseDF: DataFrame): Try[DataFrame] = {
-    logger.info("Aggregating enriched purchase DataFrame")
+    logger.info("Aggregating enriched purchase DataFrame by country")
     aggregateDataFrame(
-      //dataframe
       enrichedPurchaseDF,
-      //aggregations other than time window
-      Seq(col("country")),
-      //aggregation functions
+      Seq(col("country")), // Grouping by country
       Seq(
         first("formattedTimestamp").as("formattedTimestamp"),
         col("country"),
-        sum("purchaseValue").as("countryRevenue")
+        sum("purchaseValue").as("countryRevenue") // Calculating total revenue per country
       ),
-      //select
       Seq(
         col("timestamp"),
         struct(
@@ -36,39 +40,32 @@ object AggregationFunctions extends LazyLogging {
   }
 
   /**
-   * Aggregates user activity data to find in each 1-minute window
-   *  - number of purchases made
-   *  - total value of the purchases made
-   *  - distinct users that made a purchase
-   *  - number of distinct users that made a purchase
+   * Aggregates purchase data to calculate various metrics within each 1-minute window:
+   * - Number of purchases made
+   * - Total value of the purchases made
+   * - Array of distinct users that made a purchase
+   * - Number of distinct users that made a purchase
    *
-   * @param purchaseDF DataFrame containing match data.
-   * @return Try[DataFrame] with columns "timestamp" and "distinctUserIds".
+   * @param purchaseDF DataFrame containing purchase data.
+   * @return Try[DataFrame] with aggregated purchase metrics.
    */
-
-  // Aggregates purchase DataFrame and logs the process
   def aggregatePurchaseDF(purchaseDF: DataFrame): Try[DataFrame] = {
     logger.info("Aggregating purchase DataFrame")
     aggregateDataFrame(
-      //dataframe
       purchaseDF,
-      //aggregations other than time window
-      Seq.empty,
-      //aggregation functions
+      Seq.empty, // No additional grouping besides time window
       Seq(
         first("formattedTimestamp").as("formattedTimestamp"),
         count("*").as("purchaseCount"),
         sum("purchaseValue").as("totalPurchaseValue"),
-        collect_set(col("userId")).as("distinctPurchaseUserIdsArray"),
-
+        collect_set(col("userId")).as("distinctPurchaseUserIdsArray")
       ),
-      //select
       Seq(
         col("timestamp"),
         struct(
           col("totalPurchaseValue"),
           col("purchaseCount"),
-          col("distinctPurchaseUserIdsArray"), //keep this information for future reference
+          col("distinctPurchaseUserIdsArray"),
           size(col("distinctPurchaseUserIdsArray")).as("distinctPurchaseUserIds")
         ).as("metadata")
       )

@@ -7,12 +7,19 @@ import org.apache.spark.sql.SparkSession
 
 import scala.util.{Failure, Success}
 
+/**
+ * Service class for aggregating purchase data.
+ * This service reads purchase data and initial user data, performs enrichment and aggregation,
+ * and writes the results to MongoDB.
+ */
 object SparkMinutePurchaseAggregatorService extends SparkUtils with LazyLogging {
   def main(args: Array[String]): Unit = {
-    logger.info("Starting SparkMinuteAggregatorService...")
+    logger.info("Starting SparkMinutePurchaseAggregatorService...")
+
+    // Load configuration settings.
     val config = SparkConfig.fromEnv()
 
-    // Initialize Spark Session
+    // Initialize Spark Session.
     val spark = SparkSession.builder
       .appName(config.appName)
       .master(config.masterUrl)
@@ -20,47 +27,45 @@ object SparkMinutePurchaseAggregatorService extends SparkUtils with LazyLogging 
       .config("checkpointLocation", "/app/data/checkpoint")
       .getOrCreate()
 
-    // Read from Kafka topic
+    logger.info("Spark Session initialized.")
+
+    // Read data from Kafka topics for initial and purchase events.
     val kafkaInitDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic)
     val kafkaPurchaseDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.purchaseEventTopic)
 
-    // Transforming initial event data with the correct schemas
+    logger.info("Data read from Kafka topics for initial and purchase events.")
+
+    // Transform initial event data to the correct schema.
     val transformedInitDF = transformInitEventDataFrame(kafkaInitDF)
     val transformedPurchaseDF = transformPurchaseEventDataFrame(kafkaPurchaseDF)
 
-    // Utilize a for-comprehension to chain the data processing steps. This approach allows
-    // a linear and readable flow of operations, handling each step's success or failure.
+    // Chain data processing steps using for-comprehension for linear and readable operations.
     val result = for {
-      // Aggregate purchase data. This step summarizes the purchase data into a more
-      // compact form suitable for further processing.
+      // Aggregate purchase data for further processing.
       aggregatedPurchaseDF <- aggregatePurchaseDF(transformedPurchaseDF)
 
-      // Enrich the purchase data with user information. This step combines the purchase
-      // data with additional user details, enhancing the dataset with more attributes.
+      // Enrich purchase data with additional user details.
       enrichedPurchaseDF <- enrichPurchaseDF(transformedInitDF, transformedPurchaseDF)
 
-      // Aggregate the enriched purchase data. This step further summarizes the enriched
-      // purchase data, often used for analytics and reporting.
+      // Aggregate the enriched purchase data for analytics and reporting.
       aggregatedEnrichedPurchaseDF <- aggregateEnrichedPurchaseDF(enrichedPurchaseDF)
-
     } yield (aggregatedPurchaseDF, aggregatedEnrichedPurchaseDF)
 
-    // Handle the outcome of the for-comprehension.
+    // Handle the outcome of the data processing.
     result match {
       case Success((aggregatedPurchaseDF, aggregatedEnrichedPurchaseDF)) =>
-        // In case of success, write the resulting DataFrame to MongoDB.
+        // Write the resulting DataFrames to MongoDB.
         writeStreamToMongoDB(aggregatedPurchaseDF, config.mongoConfig, config.mongoConfig.mongoCollection)
         writeStreamToMongoDB(aggregatedEnrichedPurchaseDF, config.mongoConfig, config.mongoConfig.mongoEnrichedCollection)
+        logger.info("Aggregated data written to MongoDB.")
 
       case Failure(exception) =>
-        // In case of failure, log the error. This is crucial for diagnosing issues
-        // in the data processing pipeline.
+        // Log any errors encountered during the data processing pipeline.
         logger.error("An error occurred in the data processing pipeline", exception)
     }
 
-
-    // Await termination
+    // Await termination of the streaming queries.
     spark.streams.awaitAnyTermination()
-    logger.info("SparkMinuteAggregatorService terminated.")
+    logger.info("SparkMinutePurchaseAggregatorService terminated.")
   }
 }

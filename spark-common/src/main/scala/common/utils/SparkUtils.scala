@@ -69,7 +69,6 @@ trait SparkUtils extends LazyLogging{
       .option("forceDeleteTempCheckpointLocation", "true")
       .outputMode("append")
       .start()
-      .awaitTermination()
   }
 
   def writeToMongoDB(df: DataFrame, mongoConfig: MongoConfig): Unit = {
