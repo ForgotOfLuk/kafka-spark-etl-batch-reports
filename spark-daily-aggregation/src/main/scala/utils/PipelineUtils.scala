@@ -19,8 +19,7 @@ object PipelineUtils extends LazyLogging{
         col("platform")
       )
       .agg(countDistinct("userId").as("numberOfUsers"))
-      .withColumn("userData", struct(col("numberOfUsers"), col("country"), col("platform")))
-      .select(col("day").as("timestamp"), col("userData"))
+      .select(col("day").as("timestamp"), col("numberOfUsers"), col("country"), col("platform"))
   }.getOrElse {
     logger.error("Aggregation failed")
     throw new RuntimeException("Failed to aggregate DataFrame with watermark")

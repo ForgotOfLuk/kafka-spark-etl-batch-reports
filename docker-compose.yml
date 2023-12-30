@@ -141,8 +141,10 @@ services:
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "minutePurchaseAggregations"
+      MONGO_ENRICHED_COLLECTION: "minutePurchaseCountryAggregations"
     volumes:
       - ./spark_minute_purchase_checkpoint:/app/data
+
   spark-minute-match-aggregation:
     build:
       context: ./spark-minute-match-aggregation
@@ -161,6 +163,7 @@ services:
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "minuteMatchAggregations"
+      MONGO_ENRICHED_COLLECTION: "minuteMatchCountryAggregations"
     volumes:
       - ./spark_minute_match_checkpoint:/app/data
 

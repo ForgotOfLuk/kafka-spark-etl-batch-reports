@@ -21,10 +21,17 @@ object AggregationFunctions extends LazyLogging {
       //aggregation functions
       Seq(
         first("formattedTimestamp").as("formattedTimestamp"),
+        col("country"),
         sum("purchaseValue").as("countryRevenue")
       ),
       //select
-      Seq(col("timestamp"), col("countryRevenue"))
+      Seq(
+        col("timestamp"),
+        struct(
+          col("country"),
+          col("countryRevenue")
+        ).as("metadata")
+      )
     )
   }
 
@@ -52,16 +59,18 @@ object AggregationFunctions extends LazyLogging {
         first("formattedTimestamp").as("formattedTimestamp"),
         count("*").as("purchaseCount"),
         sum("purchaseValue").as("totalPurchaseValue"),
-        array_distinct(flatten(collect_list(col("userIds")))).as("distinctPurchaseUserIdsArray"),
+        collect_set(col("userId")).as("distinctPurchaseUserIdsArray"),
 
       ),
       //select
       Seq(
         col("timestamp"),
-        col("totalPurchaseValue"),
-        col("purchaseCount"),
-        col("distinctPurchaseUserIdsArray"), //keep this information for future reference
-        size(col("distinctPurchaseUserIdsArray")).as("distinctPurchaseUserIds")
+        struct(
+          col("totalPurchaseValue"),
+          col("purchaseCount"),
+          col("distinctPurchaseUserIdsArray"), //keep this information for future reference
+          size(col("distinctPurchaseUserIdsArray")).as("distinctPurchaseUserIds")
+        ).as("metadata")
       )
     )
   }

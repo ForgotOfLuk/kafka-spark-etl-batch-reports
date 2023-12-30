@@ -59,12 +59,12 @@ trait SparkUtils extends LazyLogging{
 
   def transformMatchEventDataFrame(df: DataFrame): DataFrame = transformDataFrame(df, SparkSchemas.matchEventSchema, "matchEvent")
 
-  def writeStreamToMongoDB(df: DataFrame, mongoConfig: MongoConfig): Unit = {
+  def writeStreamToMongoDB(df: DataFrame, mongoConfig: MongoConfig, collection: String): Unit = {
     df.writeStream
       .format("mongodb")
       .option("uri", mongoConfig.mongoUri)
-      .option("collection", mongoConfig.mongoCollection)
       .option("database", mongoConfig.mongoDb)
+      .option("collection", collection)
       .option("checkpointLocation", "/tmp/")
       .option("forceDeleteTempCheckpointLocation", "true")
       .outputMode("append")

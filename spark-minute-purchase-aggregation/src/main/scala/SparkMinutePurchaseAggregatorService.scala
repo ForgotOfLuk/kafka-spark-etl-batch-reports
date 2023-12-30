@@ -49,8 +49,8 @@ object SparkMinutePurchaseAggregatorService extends SparkUtils with LazyLogging 
     result match {
       case Success((aggregatedPurchaseDF, aggregatedEnrichedPurchaseDF)) =>
         // In case of success, write the resulting DataFrame to MongoDB.
-        writeStreamToMongoDB(aggregatedPurchaseDF, config.mongoConfig)
-        aggregatedEnrichedPurchaseDF.printSchema() //TODO understand if i want to add a new job for country aggregations or not
+        writeStreamToMongoDB(aggregatedPurchaseDF, config.mongoConfig, config.mongoConfig.mongoCollection)
+        writeStreamToMongoDB(aggregatedEnrichedPurchaseDF, config.mongoConfig, config.mongoConfig.mongoEnrichedCollection)
 
       case Failure(exception) =>
         // In case of failure, log the error. This is crucial for diagnosing issues

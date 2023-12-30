@@ -18,33 +18,44 @@ docker-compose up -d zookeeper miniclip_kafka schema-registry spark-master spark
 
 
 echo "Waiting for Containers to start..."
-sleep 90
-echo "Creating Time Series Collections in MongoDB..."
+sleep 30
 
-# Function to create a time series collection
-function create_time_series_collection {
+echo "Creating Collections in MongoDB..."
+
+# Function to create a collection
+function create_collection {
     db=$1
     collection=$2
-    time_field=$3
-    meta_field=$4
-    ttl_seconds=$5
+    ttlSeconds=$3
+    isTimeSeries=$4
 
-    docker exec mongodb mongosh -u root -p example --authenticationDatabase admin --eval \
-    "db.createCollection('$collection', {
-        timeseries: {
-            timeField: '$time_field'
-            metaField: '$meta_field'
-          },
-        expireAfterSeconds: $ttl_seconds
-    })" $db 2>/dev/null
+    if [ "$isTimeSeries" = true ]; then
+        # Create a time series collection
+        docker exec mongodb mongosh -u root -p example --authenticationDatabase admin --eval \
+        "db.createCollection('$collection', {
+            timeseries: {
+              timeField: 'timestamp' ,
+              metaField: 'metadata',
+              granularity: 'minutes'
+            },
+            expireAfterSeconds: $ttlSeconds
+        })" $db 2>/dev/null
+    else
+        # Create a regular collection
+        docker exec mongodb mongosh -u root -p example --authenticationDatabase admin --eval \
+        "db.createCollection('$collection')" $db 2>/dev/null
+    fi
 }
 
 # Create the Database and Collections
-create_time_series_collection "timeseriesAggregations" "dailyUserAggregations" "timestamp" "userData" "157680000" #5 years
-create_time_series_collection "timeseriesAggregations" "minutePurchaseAggregations" "timestamp" "2592000" #30 days
-create_time_series_collection "timeseriesAggregations" "minuteMatchAggregations" "timestamp" "2592000" #30 days
+create_collection "timeseriesAggregations" "dailyUserAggregations" "157680000" false #5 years, regular collection
+create_collection "timeseriesAggregations" "minutePurchaseAggregations" "2592000" true #30 days, time series
+create_collection "timeseriesAggregations" "minutePurchaseCountryAggregations" "2592000" true #30 days, time series
+create_collection "timeseriesAggregations" "minuteMatchAggregations" "2592000" true #30 days, time series
+create_collection "timeseriesAggregations" "minuteMatchCountryAggregations" "2592000" true #30 days, time series
 
-echo "Time Series Collections Created."
+echo "Collections Created."
+
 
 echo "Starting Mock-Data service..."
 docker-compose up -d mock-data
