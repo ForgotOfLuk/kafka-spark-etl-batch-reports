@@ -79,14 +79,31 @@ lazy val sparkDailyAggregation = (project in file("spark-daily-aggregation"))
   )
 
 // Spark daily aggregator project settings
-lazy val sparkMinuteAggregation = (project in file("spark-minute-aggregation"))
+lazy val sparkMinutePurchaseAggregation = (project in file("spark-minute-purchase-aggregation"))
   .dependsOn(sparkCommon)
   .settings(
-    name := "Miniclip-SparkMinuteAggregation",
+    name := "Miniclip-SparkMinutePurchaseAggregation",
     libraryDependencies ++= sparkProvidedDependencies,
     // Assembly plugin settings for building a fat JAR
-    assembly / mainClass := Some("SparkMinuteAggregatorService"),
-    assembly / assemblyJarName := "spark-minute-aggregation-assembly.jar",
+    assembly / mainClass := Some("SparkMinutePurchaseAggregationService"),
+    assembly / assemblyJarName := "spark-minute-purchase-aggregation-assembly.jar",
+    // or as follows
+    assembly / assemblyOption ~= {
+      _.withIncludeScala(false)
+    },
+    // Handling of merge conflicts during assembly
+    MergeStrategyBuilder.sparkMergeStrategy,
+    Compile / fullClasspath ++= (sparkCommon / Compile / fullClasspath).value.files
+  )
+// Spark daily aggregator project settings
+lazy val sparkMinuteMatchAggregation = (project in file("spark-minute-match-aggregation"))
+  .dependsOn(sparkCommon)
+  .settings(
+    name := "Miniclip-SparkMinuteMatchAggregation",
+    libraryDependencies ++= sparkProvidedDependencies,
+    // Assembly plugin settings for building a fat JAR
+    assembly / mainClass := Some("SparkMinuteMatchAggregatorService"),
+    assembly / assemblyJarName := "spark-minute-match-aggregation-assembly.jar",
     // or as follows
     assembly / assemblyOption ~= {
       _.withIncludeScala(false)
@@ -98,7 +115,7 @@ lazy val sparkMinuteAggregation = (project in file("spark-minute-aggregation"))
 
 // Root project settings
 lazy val root = (project in file("."))
-  .aggregate(common, mockData, dataQuality, sparkDailyAggregation, sparkMinuteAggregation)
+  .aggregate(common, mockData, dataQuality, sparkDailyAggregation, sparkMinutePurchaseAggregation, sparkMinuteMatchAggregation)
   .settings(
     name := "Miniclip"
   )

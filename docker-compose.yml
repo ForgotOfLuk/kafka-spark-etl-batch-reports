@@ -123,9 +123,9 @@ services:
     volumes:
       - ./spark_daily_checkpoint:/app/data
 
-  spark-minute-aggregation:
+  spark-minute-purchase-aggregation:
     build:
-      context: ./spark-minute-aggregation
+      context: ./spark-minute-purchase-aggregation
       dockerfile: Dockerfile
     depends_on:
       - spark-master
@@ -133,17 +133,36 @@ services:
       - miniclip_kafka
       - mongodb
     environment:
-      APP_NAME: SparkMinuteAggregation
+      APP_NAME: SparkMinutePurchaseAggregation
+      MASTER_URL: spark://spark-master:7077
+      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_INIT_TOPIC: "init_validated"
+      KAFKA_PURCHASE_TOPIC: "in_app_purchase_validated"
+      MONGO_URI: "mongodb://root:example@mongodb:27017"
+      MONGO_DB: "timeseriesAggregations"
+      MONGO_COLLECTION: "minutePurchaseAggregations"
+    volumes:
+      - ./spark_minute_purchase_checkpoint:/app/data
+  spark-minute-match-aggregation:
+    build:
+      context: ./spark-minute-match-aggregation
+      dockerfile: Dockerfile
+    depends_on:
+      - spark-master
+      - spark-worker
+      - miniclip_kafka
+      - mongodb
+    environment:
+      APP_NAME: SparkMinuteMatchAggregation
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
       KAFKA_INIT_TOPIC: "init_validated"
       KAFKA_MATCH_TOPIC: "match_validated"
-      KAFKA_PURCHASE_TOPIC: "in_app_purchase_validated"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
-      MONGO_COLLECTION: "minuteUserAggregations"
+      MONGO_COLLECTION: "minuteMatchAggregations"
     volumes:
-      - ./spark_daily_checkpoint:/app/data
+      - ./spark_minute_match_checkpoint:/app/data
 
   mongodb:
     container_name: mongodb

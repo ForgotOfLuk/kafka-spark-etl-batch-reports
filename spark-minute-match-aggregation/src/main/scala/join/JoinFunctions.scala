@@ -17,21 +17,22 @@ object JoinFunctions extends LazyLogging {
    * @param aggregatedEnrichedMatchDF DataFrame containing aggregated enriched match data.
    * @return DataFrame resulting from the join of the input DataFrames.
    */
-  def joinDfs(aggregatedPurchaseDF: DataFrame, aggregatedInitDF: DataFrame, aggregatedEnrichedMatchDF: DataFrame): Try[DataFrame] = Try {
+  def joinDfs(aggregatedPurchaseDF: DataFrame, distinctUserInfo: DataFrame, aggregatedEnrichedMatchDF: DataFrame, aggregatedEnrichedPurchaseDF: DataFrame): Try[DataFrame] = Try {
     logger.info("Starting to join DataFrames based on the timestamp field.")
 
     // Full outer join on the timestamp field to ensure no data is missed
     val joinedDF = aggregatedPurchaseDF
-      .join(aggregatedInitDF, Seq("timestamp"), "outer")
+      .join(distinctUserInfo, Seq("timestamp"), "outer")
       .join(aggregatedEnrichedMatchDF, Seq("timestamp"), "outer")
+      .join(aggregatedEnrichedPurchaseDF, Seq("timestamp"), "outer")
       .select(
         col("timestamp"),
         struct(
-          col("distinctUserIds"),
-          col("totalPurchaseValue"),
           col("purchaseCount"),
-          col("matchesByCountry"),
-          col("countryRevenue")
+          col("totalPurchaseValue"),
+          col("distinctUserIds"),
+          col("countryRevenue"),
+          col("matchesByCountry")
         ).as("userData")
       )
 
