@@ -1,4 +1,3 @@
-// TopologyBuilder.scala
 package utils
 
 import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}

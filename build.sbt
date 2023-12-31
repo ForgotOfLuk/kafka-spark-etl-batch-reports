@@ -83,7 +83,6 @@ lazy val sparkDailyAggregation = (project in file("spark-daily-aggregation"))
     // Assembly plugin settings for building a fat JAR
     assembly / mainClass := Some("SparkDailyAggregatorService"),
     assembly / assemblyJarName := "spark-daily-aggregation-assembly.jar",
-    // or as follows
     assembly / assemblyOption ~= {
       _.withIncludeScala(false)
     },
@@ -101,7 +100,6 @@ lazy val sparkMinutePurchaseAggregation = (project in file("spark-minute-purchas
     // Assembly plugin settings for building a fat JAR
     assembly / mainClass := Some("SparkMinutePurchaseAggregationService"),
     assembly / assemblyJarName := "spark-minute-purchase-aggregation-assembly.jar",
-    // or as follows
     assembly / assemblyOption ~= {
       _.withIncludeScala(false)
     },
@@ -118,7 +116,6 @@ lazy val sparkMinuteMatchAggregation = (project in file("spark-minute-match-aggr
     // Assembly plugin settings for building a fat JAR
     assembly / mainClass := Some("SparkMinuteMatchAggregatorService"),
     assembly / assemblyJarName := "spark-minute-match-aggregation-assembly.jar",
-    // or as follows
     assembly / assemblyOption ~= {
       _.withIncludeScala(false)
     },
