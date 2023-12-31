@@ -43,7 +43,7 @@ object AggregationFunctions extends LazyLogging {
         struct(
           col("country"),
           col("matchesByCountry")
-        )
+        ).as("metadata")
       )
     )
   }
@@ -70,7 +70,7 @@ object AggregationFunctions extends LazyLogging {
         struct(
           size(col("distinctMatchUserIdsArray")).as("distinctMatchUserIds"),
           col("distinctMatchUserIdsArray")
-        )
+        ).as("metadata")
       )
     )
   }
