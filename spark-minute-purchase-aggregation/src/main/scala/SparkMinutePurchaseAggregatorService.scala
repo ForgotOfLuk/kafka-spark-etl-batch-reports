@@ -38,28 +38,30 @@ object SparkMinutePurchaseAggregatorService extends SparkUtils with LazyLogging 
     // Transform initial event data to the correct schema.
     val transformedPurchaseDF = transformPurchaseEventDataFrame(kafkaPurchaseDF)
 
-    // Chain data processing steps using for-comprehension for linear and readable operations.
-    val result = for {
-      // Aggregate purchase data
-      aggregatedPurchaseDF <- aggregatePurchaseDF(transformedPurchaseDF)
+    // data processing
+    val processDataResult = processData(
+      transformedPurchaseDF,
+      config,
+      aggregatePurchaseDF,
+      aggregateEnrichedPurchaseDF
+    )
 
-      // Aggregate the enriched purchase data.
-      aggregatedEnrichedPurchaseDF <- aggregateEnrichedPurchaseDF(transformedPurchaseDF)
-    } yield (aggregatedPurchaseDF, aggregatedEnrichedPurchaseDF)
-
-    // Handle the outcome of the data processing.
-    result match {
-      case Success((aggregatedPurchaseDF, aggregatedEnrichedPurchaseDF)) =>
-        // Write the resulting DataFrames to MongoDB.
-        writeStreamToMongoDB(aggregatedPurchaseDF, config.mongoConfig, config.mongoConfig.mongoCollection)
-        writeStreamToMongoDB(aggregatedEnrichedPurchaseDF, config.mongoConfig, config.mongoConfig.mongoEnrichedCollection)
-        logger.info("Aggregated data written to MongoDB.")
-
-      case Failure(exception) =>
-        // Log any errors encountered during the data processing pipeline.
-        logger.error("An error occurred in the data processing pipeline", exception)
+    //writing processed data
+    val sendDataResult = processDataResult.flatMap { aggregatedDF =>
+      sendData(
+        aggregatedDF,
+        config,
+        writeStreamToMongoDB(_, config.mongoConfig, _)
+      )
     }
 
+    sendDataResult match {
+      case Success(streamingQuery) =>
+        logger.info("Data processed and written to MongoDB successfully, awaiting termination...")
+        streamingQuery.awaitTermination()
+      case Failure(exception) =>
+        logger.error("An error occurred in the data processing pipeline", exception)
+    }
     // Await termination of the streaming queries.
     spark.streams.awaitAnyTermination()
     logger.info("SparkMinutePurchaseAggregatorService terminated.")

@@ -36,25 +36,26 @@ object SparkMinuteMatchAggregatorService extends SparkUtils with LazyLogging {
     // Transform initial event data with the correct schemas.
     val transformedMatchDF = transformMatchEventDataFrame(kafkaMatchDF)
 
-    // Chain data processing steps using for-comprehension for linear and readable operations.
+    // Chain data processing/writing steps using for-comprehension.
     val result = for {
-      // Aggregate enriched match data for analytical purposes.
-      aggregatedEnrichedMatchDF <- aggregateEnrichedMatchDF(transformedMatchDF)
+      aggregatedDF <- processData(
+        transformedMatchDF,
+        config,
+        getUsersByTimeDF,
+        aggregateEnrichedMatchDF
+      )
+      streamingQuery <- sendData(
+        aggregatedDF,
+        config,
+        writeStreamToMongoDB(_, config.mongoConfig, _)
+      )
+    } yield streamingQuery
 
-      // Aggregate match data to get distinct user activity per minute.
-      aggregatedMatchDF <- getUsersByTimeDF(transformedMatchDF)
-    } yield (aggregatedMatchDF, aggregatedEnrichedMatchDF)
-
-    // Handle the outcome of the data processing.
     result match {
-      case Success((aggregatedMatchDF, aggregatedEnrichedMatchDF)) =>
-        // Write the resulting DataFrames to MongoDB.
-        writeStreamToMongoDB(aggregatedMatchDF, config.mongoConfig, config.mongoConfig.mongoCollection)
-        writeStreamToMongoDB(aggregatedEnrichedMatchDF, config.mongoConfig, config.mongoConfig.mongoEnrichedCollection)
-        logger.info("Aggregated data written to MongoDB.")
-
+      case Success(streamingQuery) =>
+        logger.info("Data processing and sending started, awaiting termination...")
+        streamingQuery.awaitTermination()
       case Failure(exception) =>
-        // Log any errors encountered during the data processing pipeline.
         logger.error("An error occurred in the data processing pipeline", exception)
     }
 

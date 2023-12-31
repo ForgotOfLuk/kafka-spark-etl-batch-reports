@@ -14,8 +14,8 @@ object SparkConfig {
     val purchaseEventTopic = sys.env.getOrElse("KAFKA_PURCHASE_TOPIC", "in_app_purchase_validated")
     val mongoUri = sys.env.getOrElse("MONGO_URI", "mongodb://mongodb:27017")
     val mongoDb = sys.env.getOrElse("MONGO_DB", "mongodb://mongodb:27017")
-    val mongoCollection = sys.env.getOrElse("MONGO_COLLECTION", "error")
-    val mongoEnrichedCollection = sys.env.getOrElse("MONGO_ENRICHED_COLLECTION", "error")
+    val mongoCollection = sys.env.getOrElse("MONGO_COLLECTION", "")
+    val mongoEnrichedCollection = sys.env.getOrElse("MONGO_ENRICHED_COLLECTION", "")
     val offsetConfigKey = sys.env.getOrElse("OFFSET_CONFIG_KEY", "startingOffsets")
     val offsetConfigValue = sys.env.getOrElse("OFFSET_CONFIG_VALUE", "earliest")
 

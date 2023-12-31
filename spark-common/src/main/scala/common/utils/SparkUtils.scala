@@ -2,14 +2,54 @@ package common.utils
 
 import com.typesafe.scalalogging.LazyLogging
 import common.model.data.SparkSchemas
-import common.model.{KafkaConfig, MongoConfig}
+import common.model.{KafkaConfig, MongoConfig, SparkConfig}
 import org.apache.spark.sql.functions.{col, from_json, to_date}
+import org.apache.spark.sql.streaming.StreamingQuery
 import org.apache.spark.sql.types.{StructType, TimestampType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
 trait SparkUtils extends LazyLogging{
+  def processData(
+    transformedMatchDF: DataFrame,
+    config: SparkConfig,
+    aggregateNormal: DataFrame => Try[DataFrame],
+    aggregateEnriched: DataFrame => Try[DataFrame]
+  ): Try[DataFrame] = {
+    val aggregationFunction = if (config.mongoConfig.mongoCollection.nonEmpty) {
+      logger.info("Selecting normal aggregation function.")
+      aggregateNormal
+    } else {
+      logger.info("Selecting enriched aggregation function.")
+      aggregateEnriched
+    }
+
+    aggregationFunction(transformedMatchDF).transform(
+      s => {
+        logger.info("Data processed successfully.")
+        Success(s)
+      },
+      f => {
+        logger.error("Error encountered during data processing.", f)
+        Failure(f)
+      }
+    )
+  }
+
+
+  def sendData(
+    aggregatedDF: DataFrame,
+    config: SparkConfig,
+    writeFunction: (DataFrame, String) => StreamingQuery,
+  ): Try[StreamingQuery] = Try {
+    if (config.mongoConfig.mongoCollection.nonEmpty) {
+      writeFunction(aggregatedDF, config.mongoConfig.mongoCollection)
+    } else {
+      writeFunction(aggregatedDF, config.mongoConfig.mongoEnrichedCollection)
+    }
+  }
+
   def readStreamFromKafkaTopic(spark: SparkSession, kafkaConfig: KafkaConfig, topic: String): DataFrame = {
     spark.readStream
       .format("kafka")
@@ -59,7 +99,7 @@ trait SparkUtils extends LazyLogging{
 
   def transformMatchEventDataFrame(df: DataFrame): DataFrame = transformDataFrame(df, SparkSchemas.matchEventSchema, "matchEvent")
 
-  def writeStreamToMongoDB(df: DataFrame, mongoConfig: MongoConfig, collection: String): Unit = {
+  def writeStreamToMongoDB(df: DataFrame, mongoConfig: MongoConfig, collection: String): StreamingQuery = {
     df.writeStream
       .format("mongodb")
       .option("uri", mongoConfig.mongoUri)

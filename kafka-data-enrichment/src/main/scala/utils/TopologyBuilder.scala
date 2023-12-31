@@ -24,7 +24,6 @@ class TopologyBuilder(builder: StreamsBuilder, configName: String, schemaRegistr
       val initTable = createGlobalTable[String, InitEvent](builder, getGlobalKTableTopic(configName, "init"), "init-global-store")(streamKeySerde, initEventSerde, Consumed.`with`(streamKeySerde, initEventSerde))
 
       logger.info("Building input streams for Kafka data quality service")
-      val initEventInputStream = createStream(builder, getGlobalKTableTopic(configName, "init"), streamKeySerde, initEventSerde)
       val matchEventInputStream = createStream(builder, getInputTopic(configName, "match"), streamKeySerde, matchEventSerde)
       val purchaseEventInputStream = createStream(builder, getInputTopic(configName, "purchase"), streamKeySerde, purchaseEventSerde)
 
@@ -34,7 +33,7 @@ class TopologyBuilder(builder: StreamsBuilder, configName: String, schemaRegistr
 
       // Send joined streams to respective output topics
       logger.info("Building output streams for Kafka data enrichment service")
-      sendToTopics(streamKeySerde, matchEventSerde, purchaseEventSerde, initEventInputStream, enrichedMatchStream, enrichedMatchStreamSideOutput, enrichedPurchaseStream, enrichedPurchaseStreamSideOutput)
+      sendToTopics(streamKeySerde, matchEventSerde, purchaseEventSerde, enrichedMatchStream, enrichedMatchStreamSideOutput, enrichedPurchaseStream, enrichedPurchaseStreamSideOutput)
 
       builder.build()
     } catch {
@@ -48,14 +47,12 @@ class TopologyBuilder(builder: StreamsBuilder, configName: String, schemaRegistr
     streamKeySerde: Serde[String],
     matchEventSerde: SpecificAvroSerde[MatchEvent],
     purchaseEventSerde: SpecificAvroSerde[InAppPurchaseEvent],
-    initStream: KStream[String, InitEvent],
     enrichedMatchStream: KStream[String, EnrichedMatchEvent],
     matchStreamSideOutput: KStream[String, MatchEvent],
     enrichedPurchaseStream: KStream[String, EnrichedInAppPurchaseEvent],
     purchaseStreamSideOutput: KStream[String, InAppPurchaseEvent]
   ): Unit = {
     //side outputs could possibly enter a scheduler for re-ingestion
-    sendToTopic(convertToStringStream(initStream), getOutputTopic(configName, "init"), streamKeySerde, streamKeySerde)
     sendToTopic(convertToStringStream(enrichedMatchStream), getOutputTopic(configName, "match"), streamKeySerde, streamKeySerde)
     sendToTopic(matchStreamSideOutput, getOutputTopic(configName, "match_side_output"), streamKeySerde, matchEventSerde)
     sendToTopic(convertToStringStream(enrichedPurchaseStream), getOutputTopic(configName, "purchase"), streamKeySerde, streamKeySerde)

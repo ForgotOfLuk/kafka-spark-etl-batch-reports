@@ -74,6 +74,7 @@ class TopologyBuilder(builder: StreamsBuilder, configName: String, schemaRegistr
 
   private def sendToTopics(streamKeySerde: Serde[String], initEventSerde: SpecificAvroSerde[InitEvent], matchEventSerde: SpecificAvroSerde[MatchEvent], purchaseEventSerde: SpecificAvroSerde[InAppPurchaseEvent], initSideOutput: KStream[String, InitEvent], transformedInitStream: KStream[String, InitEvent], matchStreamOutput: KStream[String, MatchEvent], matchStreamSideOutput: KStream[String, MatchEvent], purchaseStreamOutput: KStream[String, InAppPurchaseEvent], purchaseStreamSideOutput: KStream[String, InAppPurchaseEvent]): Unit = {
     sendToTopic(transformedInitStream.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "init"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+    sendToTopic(convertToStringStream(transformedInitStream), getOutputTopic(configName, "init_enriched"), streamKeySerde, streamKeySerde)
     sendToTopic(matchStreamOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "match"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
     sendToTopic(purchaseStreamOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "purchase"), streamKeySerde, purchaseEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
 
