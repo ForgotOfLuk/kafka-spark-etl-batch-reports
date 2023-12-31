@@ -4,20 +4,17 @@
 - [SBT](https://www.scala-sbt.org/): Scala Build Tool
 - [Java Runtime Environment (JRE) 21](https://adoptium.net/)
 - [Docker](https://www.docker.com/)
-- [Airflow](TODO)
-- [python3](TODO)
 
+## Optional Prerequisites:
+- [Mongo Compass](https://www.mongodb.com/try/download/compass)
+  - or a similar app to view databases
 
 ## Getting Started
-Option A:
-1. Run the following script to set up and start the project:
+- Run the following script to set up and start the project:
 
    ```bash
    /bin/bash /path/to/Miniclip/init_script.sh
-Option B:
-1. Update DAGS PATH.
-2. Use airflow, import the DAGs and run.
-
+   
 
 This script performs the following tasks:
 
