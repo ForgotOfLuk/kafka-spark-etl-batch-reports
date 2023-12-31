@@ -51,7 +51,7 @@ object SparkSchemas {
       .add("winner", StringType, nullable = true)
       .add("gameTier", IntegerType, nullable = true)
       .add("duration", IntegerType, nullable = true)
-      .add("countryA", IntegerType, nullable = true)
-      .add("countryB", IntegerType, nullable = true)
+      .add("countryA", StringType, nullable = true)
+      .add("countryB", StringType, nullable = true)
   }
 }

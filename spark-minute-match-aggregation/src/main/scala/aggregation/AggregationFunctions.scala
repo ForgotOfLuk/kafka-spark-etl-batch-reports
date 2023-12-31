@@ -19,23 +19,13 @@ object AggregationFunctions extends LazyLogging {
   def aggregateEnrichedMatchDF(enrichedMatchDF: DataFrame): Try[DataFrame] = {
     logger.info("Starting aggregation of enriched match DataFrame by country.")
 
-    // Explode userACountry and userBCountry into a single column 'country' and remove duplicates.
-    val explodedCountryDF = enrichedMatchDF
-      .select(
-        col("time"),
-        col("timestamp"),
-        explode(array(col("countryA"), col("countryB"))).as("country")
-      ).distinct()
-
-    logger.info("Exploded user countries and removed duplicates for aggregation.")
-
     // Perform the aggregation using a helper function.
     aggregateDataFrame(
-      explodedCountryDF,
-      Seq(col("country")),
+      enrichedMatchDF,
+      Seq(col("countryA")),
       Seq(
         first("formattedTimestamp").as("formattedTimestamp"),
-        col("country"),
+        col("countryA").as("country"),
         count("*").as("matchesByCountry"),
       ),
       Seq(
@@ -56,7 +46,6 @@ object AggregationFunctions extends LazyLogging {
    */
   def getUsersByTimeDF(transformedMatchDF: DataFrame): Try[DataFrame] = {
     logger.info("Aggregating match data to find distinct users active in each 1-minute window.")
-
     // Perform aggregation to find distinct users in each 1-minute window.
     aggregateDataFrame(
       transformedMatchDF,

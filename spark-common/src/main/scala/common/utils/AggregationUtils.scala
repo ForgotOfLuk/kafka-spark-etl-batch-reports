@@ -19,7 +19,7 @@ object AggregationUtils extends LazyLogging {
   ): Try[DataFrame] = Try {
     logger.info(s"Starting aggregation on DataFrame with time column")
     df
-      .withColumn("formattedTimestamp", from_unixtime(col("time")))
+      .withColumn("formattedTimestamp", from_unixtime(col("time") / 1000))
       .withWatermark("timestamp", "10 minutes")
       .groupBy(window(col("timestamp"), "1 minute") +: groupByColumns: _*)
       .agg(aggregations.head, aggregations.tail: _*)
