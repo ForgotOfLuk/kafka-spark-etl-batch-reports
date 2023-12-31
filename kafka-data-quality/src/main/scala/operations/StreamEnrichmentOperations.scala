@@ -2,6 +2,7 @@ package operations
 
 import com.miniclip.avro.InitEvent
 import com.typesafe.scalalogging.LazyLogging
+import common.kafka.utils.globalktable.GlobalKTableJoinOperation
 import operations.join.JoinedStreamOperation
 import operations.stream.StreamOperation
 import org.apache.kafka.common.serialization.Serde

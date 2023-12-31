@@ -1,10 +1,11 @@
 package aggregation
 
-import org.apache.spark.sql.{Column, DataFrame}
-import org.apache.spark.sql.functions.{array_distinct, _}
-import scala.util.Try
 import com.typesafe.scalalogging.LazyLogging
 import common.utils.AggregationUtils.aggregateDataFrame
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
+
+import scala.util.Try
 
 /**
  * Object containing functions for aggregating data in different ways.

@@ -28,6 +28,7 @@ object SparkSchemas {
     .add("purchaseValue", DoubleType, nullable = true)
     .add("userId", StringType, nullable = true)
     .add("productId", StringType, nullable = true)
+    .add("country", StringType, nullable = true)
 
   /**
    * Defines the schema for match events, including nested post-match information.
@@ -50,5 +51,7 @@ object SparkSchemas {
       .add("winner", StringType, nullable = true)
       .add("gameTier", IntegerType, nullable = true)
       .add("duration", IntegerType, nullable = true)
+      .add("countryA", IntegerType, nullable = true)
+      .add("countryB", IntegerType, nullable = true)
   }
 }

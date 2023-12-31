@@ -79,6 +79,20 @@ services:
         limits:
           cpus: "0.5"
 
+  kafka-data-enrichment:
+    container_name: kafka_data_enrichment
+    build: ./kafka-data-enrichment # Dockerfile in the kafka-data-enrichment directory
+    environment:
+      KAFKA_BROKERS: "miniclip_kafka:9092"
+      SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+    depends_on:
+      - miniclip_kafka
+      - schema-registry
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+
   spark-master:
     container_name: spark-master
     image: bitnami/spark:3.2.4
@@ -116,7 +130,7 @@ services:
       APP_NAME: SparkDailyAggregation
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
-      KAFKA_INIT_TOPIC: "init_validated"
+      KAFKA_INIT_TOPIC: "init_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "dailyUserAggregations"
@@ -136,8 +150,7 @@ services:
       APP_NAME: SparkMinutePurchaseAggregation
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
-      KAFKA_INIT_TOPIC: "init_validated"
-      KAFKA_PURCHASE_TOPIC: "in_app_purchase_validated"
+      KAFKA_PURCHASE_TOPIC: "in_app_purchase_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "minutePurchaseAggregations"
@@ -158,8 +171,7 @@ services:
       APP_NAME: SparkMinuteMatchAggregation
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
-      KAFKA_INIT_TOPIC: "init_validated"
-      KAFKA_MATCH_TOPIC: "match_validated"
+      KAFKA_MATCH_TOPIC: "match_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
       MONGO_COLLECTION: "minuteMatchAggregations"

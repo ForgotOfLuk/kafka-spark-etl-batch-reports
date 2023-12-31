@@ -1,4 +1,4 @@
-package operations
+package common.kafka.utils.globalktable
 
 import org.apache.kafka.streams.kstream.GlobalKTable
 import org.apache.kafka.streams.scala.kstream.KStream

@@ -2,7 +2,7 @@ package utils
 
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.functions.{col, countDistinct, date_trunc, struct}
+import org.apache.spark.sql.functions.{col, countDistinct, date_trunc}
 
 import scala.util.Try
 

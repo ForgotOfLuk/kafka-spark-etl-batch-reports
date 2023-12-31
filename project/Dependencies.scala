@@ -22,6 +22,9 @@ object Dependencies {
     "com.typesafe" % "config" % typesafeVersion,
     "com.typesafe.scala-logging" %% "scala-logging" % scalaLogVersion,
     "ch.qos.logback" % "logback-classic" % logbackVersion,
+    //kafka streams
+    "org.apache.kafka" %% "kafka-streams-scala" % kafkaVersion,
+    "org.apache.kafka" % "kafka-clients" % kafkaVersion,
     //Test dependencies
     "org.scalatest" %% "scalatest" % scalatestVersion % Test,
   )
@@ -33,10 +36,8 @@ object Dependencies {
   )
 
   // Specific dependencies for the dataQuality project
-  val dataQualityDependencies: Seq[ModuleID] = Seq(
+  val dataStreamsDependencies: Seq[ModuleID] = Seq(
     "io.confluent" % "kafka-streams-avro-serde" % confluentVersion,
-    "org.apache.kafka" %% "kafka-streams-scala" % kafkaVersion,
-    "org.apache.kafka" % "kafka-clients" % kafkaVersion,
     "org.typelevel" %% "cats-core" % catsVersion,
     "org.scalatest" %% "scalatest" % scalatestVersion % Test,
     //Test dependencies

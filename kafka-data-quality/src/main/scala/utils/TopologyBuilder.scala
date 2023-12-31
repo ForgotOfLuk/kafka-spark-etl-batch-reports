@@ -3,6 +3,8 @@ package utils
 
 import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
 import com.typesafe.scalalogging.LazyLogging
+import common.kafka.utils.globalktable.GlobalTableUtils.createGlobalTable
+import common.kafka.utils.stream.KafkaStreamUtils.convertToStringStream
 import common.utils.ConfigUtils
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
 import operations.StreamEnrichmentOperations.{enrichInitStream, joinInitStream, transformJoinedStream, transformStream}
@@ -15,8 +17,7 @@ import org.apache.kafka.streams.scala.StreamsBuilder
 import org.apache.kafka.streams.scala.kstream.KStream
 import org.apache.kafka.streams.scala.serialization.Serdes
 import org.apache.kafka.streams.scala.serialization.Serdes._
-import utils.GlobalTableUtils.createGlobalTable
-import utils.StreamBuilderUtils.{consumedString, convertToStringStream, createStream, createValueSerde, sendToTopic}
+import utils.StreamBuilderUtils.{consumedString, createStream, createValueSerde, sendToTopic}
 import utils.StreamProcessingUtils.{createInitEventKTable, filterKeys}
 import utils.Validation.separateFunction
 
@@ -72,9 +73,9 @@ class TopologyBuilder(builder: StreamsBuilder, configName: String, schemaRegistr
   }
 
   private def sendToTopics(streamKeySerde: Serde[String], initEventSerde: SpecificAvroSerde[InitEvent], matchEventSerde: SpecificAvroSerde[MatchEvent], purchaseEventSerde: SpecificAvroSerde[InAppPurchaseEvent], initSideOutput: KStream[String, InitEvent], transformedInitStream: KStream[String, InitEvent], matchStreamOutput: KStream[String, MatchEvent], matchStreamSideOutput: KStream[String, MatchEvent], purchaseStreamOutput: KStream[String, InAppPurchaseEvent], purchaseStreamSideOutput: KStream[String, InAppPurchaseEvent]): Unit = {
-    sendToTopic(convertToStringStream(transformedInitStream), getOutputTopic(configName, "init"), streamKeySerde, streamKeySerde)
-    sendToTopic(convertToStringStream(matchStreamOutput), getOutputTopic(configName, "match"), streamKeySerde, streamKeySerde)
-    sendToTopic(convertToStringStream(purchaseStreamOutput), getOutputTopic(configName, "purchase"), streamKeySerde, streamKeySerde)
+    sendToTopic(transformedInitStream.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "init"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+    sendToTopic(matchStreamOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "match"), streamKeySerde, matchEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
+    sendToTopic(purchaseStreamOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "purchase"), streamKeySerde, purchaseEventSerde.asInstanceOf[Serde[SpecificRecordBase]])
 
     //persist all data
     sendToTopic(initSideOutput.asInstanceOf[KStream[String, SpecificRecordBase]], getOutputTopic(configName, "init_side_output"), streamKeySerde, initEventSerde.asInstanceOf[Serde[SpecificRecordBase]])

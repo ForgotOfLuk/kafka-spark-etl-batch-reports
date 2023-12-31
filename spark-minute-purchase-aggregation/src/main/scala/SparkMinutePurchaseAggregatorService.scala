@@ -2,7 +2,6 @@ import aggregation.AggregationFunctions.{aggregateEnrichedPurchaseDF, aggregateP
 import com.typesafe.scalalogging.LazyLogging
 import common.model.SparkConfig
 import common.utils.SparkUtils
-import enrich.EnrichFunctions.enrichPurchaseDF
 import org.apache.spark.sql.SparkSession
 
 import scala.util.{Failure, Success}
@@ -25,30 +24,27 @@ object SparkMinutePurchaseAggregatorService extends SparkUtils with LazyLogging 
       .master(config.masterUrl)
       .config("spark.mongodb.write.connection.uri", config.mongoConfig.mongoUri)
       .config("checkpointLocation", "/app/data/checkpoint")
+      .config("spark.sql.streaming.statefulOperator.checkCorrectness.enabled", "false") //set to false due to enriching functions
+
       .getOrCreate()
 
     logger.info("Spark Session initialized.")
 
-    // Read data from Kafka topics for initial and purchase events.
-    val kafkaInitDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic)
+    // Read data from Kafka topic for purchase events.
     val kafkaPurchaseDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.purchaseEventTopic)
 
     logger.info("Data read from Kafka topics for initial and purchase events.")
 
     // Transform initial event data to the correct schema.
-    val transformedInitDF = transformInitEventDataFrame(kafkaInitDF)
     val transformedPurchaseDF = transformPurchaseEventDataFrame(kafkaPurchaseDF)
 
     // Chain data processing steps using for-comprehension for linear and readable operations.
     val result = for {
-      // Aggregate purchase data for further processing.
+      // Aggregate purchase data
       aggregatedPurchaseDF <- aggregatePurchaseDF(transformedPurchaseDF)
 
-      // Enrich purchase data with additional user details.
-      enrichedPurchaseDF <- enrichPurchaseDF(transformedInitDF, transformedPurchaseDF)
-
-      // Aggregate the enriched purchase data for analytics and reporting.
-      aggregatedEnrichedPurchaseDF <- aggregateEnrichedPurchaseDF(enrichedPurchaseDF)
+      // Aggregate the enriched purchase data.
+      aggregatedEnrichedPurchaseDF <- aggregateEnrichedPurchaseDF(transformedPurchaseDF)
     } yield (aggregatedPurchaseDF, aggregatedEnrichedPurchaseDF)
 
     // Handle the outcome of the data processing.

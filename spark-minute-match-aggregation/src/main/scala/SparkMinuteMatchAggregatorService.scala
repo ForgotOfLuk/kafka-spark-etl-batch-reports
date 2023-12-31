@@ -2,7 +2,6 @@ import aggregation.AggregationFunctions.{aggregateEnrichedMatchDF, getUsersByTim
 import com.typesafe.scalalogging.LazyLogging
 import common.model.SparkConfig
 import common.utils.SparkUtils
-import enrich.EnrichFunctions.enrichMatchDF
 import org.apache.spark.sql.SparkSession
 
 import scala.util.{Failure, Success}
@@ -30,22 +29,17 @@ object SparkMinuteMatchAggregatorService extends SparkUtils with LazyLogging {
     logger.info("Spark Session initialized.")
 
     // Read data from Kafka topics.
-    val kafkaInitDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.initEventTopic)
     val kafkaMatchDF = readStreamFromKafkaTopic(spark, config.kafkaConfig, config.kafkaConfig.matchEventTopic)
 
     logger.info("Data read from Kafka topics.")
 
     // Transform initial event data with the correct schemas.
-    val transformedInitDF = transformInitEventDataFrame(kafkaInitDF)
     val transformedMatchDF = transformMatchEventDataFrame(kafkaMatchDF)
 
     // Chain data processing steps using for-comprehension for linear and readable operations.
     val result = for {
-      // Enrich match data with user information.
-      enrichedMatchDF <- enrichMatchDF(transformedInitDF, transformedMatchDF)
-
       // Aggregate enriched match data for analytical purposes.
-      aggregatedEnrichedMatchDF <- aggregateEnrichedMatchDF(enrichedMatchDF)
+      aggregatedEnrichedMatchDF <- aggregateEnrichedMatchDF(transformedMatchDF)
 
       // Aggregate match data to get distinct user activity per minute.
       aggregatedMatchDF <- getUsersByTimeDF(transformedMatchDF)

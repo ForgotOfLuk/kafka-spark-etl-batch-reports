@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "EnrichedInAppPurchaseEvent",
+  "namespace": "com.miniclip.avro",
+  "fields": [
+    {
+      "name": "eventType",
+      "type": "com.miniclip.avro.EventTypeInAppPurchase",
+      "default": "in_app_purchase"
+    },
+    {
+      "name": "time",
+      "type": "long"
+    },
+    {
+      "name": "purchaseValue",
+      "type": "double"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "productId",
+      "type": "string"
+    },
+    {
+      "name": "country",
+      "type": "string"
+    }
+  ]
+}

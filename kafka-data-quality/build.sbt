@@ -1,1 +1,1 @@
-name := "Miniclip-DataQuality"
+name := "Miniclip-KafkaDataQuality"

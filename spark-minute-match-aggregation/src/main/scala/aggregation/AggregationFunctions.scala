@@ -1,10 +1,11 @@
 package aggregation
 
-import org.apache.spark.sql.{Column, DataFrame}
-import org.apache.spark.sql.functions._
-import scala.util.Try
 import com.typesafe.scalalogging.LazyLogging
 import common.utils.AggregationUtils.aggregateDataFrame
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions._
+
+import scala.util.Try
 
 // Object for performing various aggregation functions on DataFrames.
 object AggregationFunctions extends LazyLogging {
@@ -23,7 +24,7 @@ object AggregationFunctions extends LazyLogging {
       .select(
         col("time"),
         col("timestamp"),
-        explode(array(col("userACountry"), col("userBCountry"))).as("country")
+        explode(array(col("countryA"), col("countryB"))).as("country")
       ).distinct()
 
     logger.info("Exploded user countries and removed duplicates for aggregation.")

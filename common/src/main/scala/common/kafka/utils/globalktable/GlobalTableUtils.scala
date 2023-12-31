@@ -1,11 +1,12 @@
-package utils
+package common.kafka.utils.globalktable
 
+import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.streams.kstream.GlobalKTable
-import org.apache.kafka.streams.scala.{ByteArrayKeyValueStore, StreamsBuilder}
 import org.apache.kafka.streams.scala.kstream.{Consumed, Materialized}
-import com.typesafe.scalalogging.LazyLogging
-import scala.util.{Try, Success, Failure}
+import org.apache.kafka.streams.scala.{ByteArrayKeyValueStore, StreamsBuilder}
+
+import scala.util.{Failure, Success, Try}
 
 object GlobalTableUtils extends LazyLogging {
 

@@ -52,10 +52,24 @@ lazy val dataQuality = (project in file("kafka-data-quality"))
   .settings(
     name := "Miniclip-KafkaDataQuality",
     // Dependencies specific to the data-quality project
-    libraryDependencies ++= dataQualityDependencies,
+    libraryDependencies ++= dataStreamsDependencies,
     // Assembly plugin settings for building a fat JAR
     assembly / mainClass := Some("KafkaDataQualityServiceApp"),
     assembly / assemblyJarName := "kafka-data-quality-assembly.jar",
+    // Handling of merge conflicts during assembly
+    assembly / assemblyMergeStrategy := mergeStrategy
+  )
+
+// Kafka data quality project settings
+lazy val dataEnrichment = (project in file("kafka-data-enrichment"))
+  .dependsOn(common)
+  .settings(
+    name := "Miniclip-KafkaDataEnrichment",
+    // Dependencies specific to the data-quality project
+    libraryDependencies ++= dataStreamsDependencies,
+    // Assembly plugin settings for building a fat JAR
+    assembly / mainClass := Some("KafkaDataEnrichmentServiceApp"),
+    assembly / assemblyJarName := "kafka-data-enrichment-assembly.jar",
     // Handling of merge conflicts during assembly
     assembly / assemblyMergeStrategy := mergeStrategy
   )
@@ -115,7 +129,7 @@ lazy val sparkMinuteMatchAggregation = (project in file("spark-minute-match-aggr
 
 // Root project settings
 lazy val root = (project in file("."))
-  .aggregate(common, mockData, dataQuality, sparkDailyAggregation, sparkMinutePurchaseAggregation, sparkMinuteMatchAggregation)
+  .aggregate(common, mockData, dataQuality, dataEnrichment, sparkDailyAggregation, sparkMinutePurchaseAggregation, sparkMinuteMatchAggregation)
   .settings(
     name := "Miniclip"
   )

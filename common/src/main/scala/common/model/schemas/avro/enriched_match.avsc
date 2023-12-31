@@ -1,0 +1,53 @@
+{
+  "type": "record",
+  "name": "EnrichedMatchEvent",
+  "namespace": "com.miniclip.avro",
+  "fields": [
+    {
+      "name": "eventType",
+      "type": "com.miniclip.avro.EventTypeMatch",
+      "default": "match"
+    },
+    {
+      "name": "time",
+      "type": "long"
+    },
+    {
+      "name": "userA",
+      "type": "string"
+    },
+    {
+      "name": "userB",
+      "type": "string"
+    },
+    {
+      "name": "userAPostmatchInfo",
+      "type": "com.miniclip.avro.UserPostmatchInfo"
+    },
+    {
+      "name": "userBPostmatchInfo",
+      "type": ["null", "com.miniclip.avro.UserPostmatchInfo"],
+      "default": null
+    },
+    {
+      "name": "winner",
+      "type": "string"
+    },
+    {
+      "name": "gameTier",
+      "type": "long"
+    },
+    {
+      "name": "duration",
+      "type": "long"
+    },
+    {
+      "name": "countryA",
+      "type": "string"
+    },
+    {
+      "name": "countryB",
+      "type": "string"
+    }
+  ]
+}

@@ -18,7 +18,7 @@ docker-compose up -d zookeeper miniclip_kafka schema-registry spark-master spark
 
 
 echo "Waiting for Containers to start..."
-sleep 30
+sleep 60
 
 echo "Creating Collections in MongoDB..."
 
@@ -63,6 +63,10 @@ sleep 30
 
 echo "Starting Kafka Data Quality service..."
 docker-compose up -d kafka-data-quality
+sleep 60
+
+echo "Starting Kafka Data Quality service..."
+docker-compose up -d kafka-data-enrichment
 sleep 30
 
 echo "Starting Spark Daily Aggregation Service..."
