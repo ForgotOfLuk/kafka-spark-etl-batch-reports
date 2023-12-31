@@ -10,7 +10,15 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.util.{Failure, Success, Try}
 
-trait SparkUtils extends LazyLogging{
+trait SparkUtils extends LazyLogging {
+  def initializeSparkSession(config: SparkConfig): SparkSession = {
+    SparkSession.builder
+      .appName(config.appName)
+      .master(config.masterUrl)
+      .config("spark.mongodb.write.connection.uri", config.mongoConfig.mongoUri)
+      .config("checkpointLocation", s"/app/data/${config.appName}checkpoint")
+      .getOrCreate()
+  }
   def processData(
     transformedMatchDF: DataFrame,
     config: SparkConfig,
@@ -105,7 +113,7 @@ trait SparkUtils extends LazyLogging{
       .option("uri", mongoConfig.mongoUri)
       .option("database", mongoConfig.mongoDb)
       .option("collection", collection)
-      .option("checkpointLocation", "/tmp/")
+      .option("checkpointLocation", s"/tmp/$collection")
       .option("forceDeleteTempCheckpointLocation", "true")
       .outputMode("append")
       .start()

@@ -19,14 +19,7 @@ object SparkMinutePurchaseAggregatorService extends SparkUtils with LazyLogging 
     val config = SparkConfig.fromEnv()
 
     // Initialize Spark Session.
-    val spark = SparkSession.builder
-      .appName(config.appName)
-      .master(config.masterUrl)
-      .config("spark.mongodb.write.connection.uri", config.mongoConfig.mongoUri)
-      .config("checkpointLocation", "/app/data/checkpoint")
-      .config("spark.sql.streaming.statefulOperator.checkCorrectness.enabled", "false") //set to false due to enriching functions
-
-      .getOrCreate()
+    val spark = initializeSparkSession(config)
 
     logger.info("Spark Session initialized.")
 

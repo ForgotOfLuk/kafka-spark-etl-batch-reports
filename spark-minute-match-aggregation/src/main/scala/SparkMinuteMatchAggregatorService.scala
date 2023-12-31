@@ -2,7 +2,6 @@ import aggregation.AggregationFunctions.{aggregateEnrichedMatchDF, getUsersByTim
 import com.typesafe.scalalogging.LazyLogging
 import common.model.SparkConfig
 import common.utils.SparkUtils
-import org.apache.spark.sql.SparkSession
 
 import scala.util.{Failure, Success}
 
@@ -19,12 +18,7 @@ object SparkMinuteMatchAggregatorService extends SparkUtils with LazyLogging {
     val config = SparkConfig.fromEnv()
 
     // Initialize Spark Session.
-    val spark = SparkSession.builder
-      .appName(config.appName)
-      .master(config.masterUrl)
-      .config("spark.mongodb.write.connection.uri", config.mongoConfig.mongoUri)
-      .config("checkpointLocation", "/app/data/checkpoint")
-      .getOrCreate()
+    val spark = initializeSparkSession(config)
 
     logger.info("Spark Session initialized.")
 

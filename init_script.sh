@@ -75,8 +75,16 @@ sleep 30
 
 echo "Starting Spark Minute Purchase Aggregation Service..."
 docker-compose up -d spark-minute-purchase-aggregation
+
+echo "Starting Spark Minute Enriched Purchase Aggregation Service..."
+docker-compose up -d spark-minute-enriched-purchase-aggregation
 sleep 30
+
 echo "Starting Spark Minute Match Aggregation Service..."
 docker-compose up -d spark-minute-match-aggregation
+sleep 30
+
+echo "Starting Spark Minute Enriched Match Aggregation Service..."
+docker-compose up -d spark-minute-enriched-match-aggregation
 
 echo "Setup complete."

@@ -167,7 +167,7 @@ services:
       - miniclip_kafka
       - mongodb
     environment:
-      APP_NAME: SparkMinutePurchaseAggregation
+      APP_NAME: SparkMinuteEnrichedPurchaseAggregation
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
       KAFKA_PURCHASE_TOPIC: "in_app_purchase_enriched"
@@ -175,7 +175,7 @@ services:
       MONGO_DB: "timeseriesAggregations"
       MONGO_ENRICHED_COLLECTION: "minutePurchaseCountryAggregations"
     volumes:
-      - ./spark_minute_purchase_checkpoint:/app/data
+      - ./spark_minute_enriched_purchase_checkpoint:/app/data
 
   spark-minute-match-aggregation:
     build:
@@ -207,7 +207,7 @@ services:
       - miniclip_kafka
       - mongodb
     environment:
-      APP_NAME: SparkMinuteMatchAggregation
+      APP_NAME: SparkMinuteEnrichedMatchAggregation
       MASTER_URL: spark://spark-master:7077
       KAFKA_BROKERS: "miniclip_kafka:9092"
       KAFKA_MATCH_TOPIC: "match_enriched"
@@ -215,7 +215,7 @@ services:
       MONGO_DB: "timeseriesAggregations"
       MONGO_ENRICHED_COLLECTION: "minuteMatchCountryAggregations"
     volumes:
-      - ./spark_minute_match_checkpoint:/app/data
+      - ./spark_minute_enriched_match_checkpoint:/app/data
 
   mongodb:
     container_name: mongodb
