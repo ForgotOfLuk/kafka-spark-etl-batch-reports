@@ -1,2 +1,2 @@
-name := "Miniclip-SparkMinutePurchaseAggregation"
+name := "SparkMinutePurchaseAggregation"
 

@@ -1,7 +1,7 @@
 {
   "type": "record",
   "name": "InAppPurchaseEvent",
-  "namespace": "com.miniclip.avro",
+  "namespace": "com.leca.avro",
   "fields": [
     {
       "name": "eventType",

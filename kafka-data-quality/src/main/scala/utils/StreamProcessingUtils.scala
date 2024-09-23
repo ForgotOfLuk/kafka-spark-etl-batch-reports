@@ -1,7 +1,7 @@
 package utils
 
 import cats.data.Validated
-import com.miniclip.avro.InitEvent
+import com.leca.avro.InitEvent
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.streams.scala.kstream.{KStream, KTable}
 

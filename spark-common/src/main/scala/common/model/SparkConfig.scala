@@ -8,7 +8,7 @@ object SparkConfig {
   def fromEnv(): SparkConfig = {
     val appName = sys.env.getOrElse("APP_NAME", "DefaultAppName")
     val masterUrl = sys.env.getOrElse("MASTER_URL", "local[*]")
-    val kafkaBrokers = sys.env.getOrElse("KAFKA_BROKERS", "miniclip_kafka:9092")
+    val kafkaBrokers = sys.env.getOrElse("KAFKA_BROKERS", "kafka:9092")
     val initEventTopic = sys.env.getOrElse("KAFKA_INIT_TOPIC", "init_validated")
     val matchEventTopic = sys.env.getOrElse("KAFKA_MATCH_TOPIC", "match_validated")
     val purchaseEventTopic = sys.env.getOrElse("KAFKA_PURCHASE_TOPIC", "in_app_purchase_validated")

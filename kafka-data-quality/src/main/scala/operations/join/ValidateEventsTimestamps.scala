@@ -1,6 +1,6 @@
 package operations.join
 
-import com.miniclip.avro.InitEvent
+import com.leca.avro.InitEvent
 import org.apache.kafka.streams.scala.kstream.KStream
 import com.typesafe.scalalogging.LazyLogging
 import scala.util.{Try, Success, Failure}

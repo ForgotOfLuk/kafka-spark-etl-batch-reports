@@ -1,1 +1,1 @@
-name := "Miniclip-KafkaDataEnrichment"
+name := "KafkaDataEnrichment"

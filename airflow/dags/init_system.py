@@ -9,9 +9,9 @@ default_args = {
     'retry_delay': timedelta(minutes=1),
 }
 
-dag = DAG('init_miniclip_system', default_args=default_args, schedule_interval=None, start_date=datetime(2023, 1, 1))
+dag = DAG('init_system', default_args=default_args, schedule_interval=None, start_date=datetime(2023, 1, 1))
 
-project_dir = Variable.get("MINICLIP_PROJECT_DIR", "/Users/pedrolera/IdeaProjects/Miniclip")
+project_dir = Variable.get("PROJECT_DIR", "/Users/pedrolera/IdeaProjects/kafka-spark-etl-batch-reports")
 
 # Docker Compose Down
 docker_compose_down = BashOperator(
@@ -30,14 +30,14 @@ compile_assemble_project = BashOperator(
 # Start Services with Docker Compose (including Spark and MongoDB)
 start_services = BashOperator(
     task_id='start_services',
-    bash_command=f'cd {project_dir} && docker-compose up -d zookeeper miniclip_kafka schema-registry spark-master spark-worker mongodb',
+    bash_command=f'cd {project_dir} && docker-compose up -d zookeeper kafka schema-registry spark-master spark-worker mongodb',
     dag=dag,
 )
 
 # Check Kafka Readiness
 check_kafka_readiness = BashOperator(
     task_id='check_kafka_readiness',
-    bash_command=f'docker exec miniclip_kafka kafka-topics.sh --list --bootstrap-server localhost:9092',
+    bash_command=f'docker exec kafka kafka-topics.sh --list --bootstrap-server localhost:9092',
     retries=5,
     dag=dag,
 )

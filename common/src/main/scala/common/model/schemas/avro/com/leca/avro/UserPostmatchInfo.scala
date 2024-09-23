@@ -1,5 +1,5 @@
 /** MACHINE-GENERATED FROM AVRO SCHEMA. DO NOT EDIT DIRECTLY */
-package com.miniclip.avro
+package com.leca.avro
 
 import scala.annotation.switch
 
@@ -40,9 +40,9 @@ final case class UserPostmatchInfo(var coinBalanceAfterMatch: Long, var levelAft
     }
     ()
   }
-  def getSchema: org.apache.avro.Schema = com.miniclip.avro.UserPostmatchInfo.SCHEMA$
+  def getSchema: org.apache.avro.Schema = com.leca.avro.UserPostmatchInfo.SCHEMA$
 }
 
 object UserPostmatchInfo {
-  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"UserPostmatchInfo\",\"namespace\":\"com.miniclip.avro\",\"fields\":[{\"name\":\"coinBalanceAfterMatch\",\"type\":\"long\"},{\"name\":\"levelAfterMatch\",\"type\":\"long\"},{\"name\":\"device\",\"type\":\"string\"},{\"name\":\"platform\",\"type\":\"string\"}]}")
+  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"UserPostmatchInfo\",\"namespace\":\"com.leca.avro\",\"fields\":[{\"name\":\"coinBalanceAfterMatch\",\"type\":\"long\"},{\"name\":\"levelAfterMatch\",\"type\":\"long\"},{\"name\":\"device\",\"type\":\"string\"},{\"name\":\"platform\",\"type\":\"string\"}]}")
 }

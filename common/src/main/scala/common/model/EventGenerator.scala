@@ -1,6 +1,6 @@
 package common.model
 
-import com.miniclip.avro._
+import com.leca.avro._
 import com.typesafe.scalalogging.LazyLogging
 
 import scala.util.Random

@@ -1,5 +1,5 @@
 /** MACHINE-GENERATED FROM AVRO SCHEMA. DO NOT EDIT DIRECTLY */
-package com.miniclip.avro
+package com.leca.avro
 
 import scala.annotation.switch
 
@@ -46,9 +46,9 @@ final case class InAppPurchaseEvent(var eventType: EventTypeInAppPurchase = Even
     }
     ()
   }
-  def getSchema: org.apache.avro.Schema = com.miniclip.avro.InAppPurchaseEvent.SCHEMA$
+  def getSchema: org.apache.avro.Schema = com.leca.avro.InAppPurchaseEvent.SCHEMA$
 }
 
 object InAppPurchaseEvent {
-  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InAppPurchaseEvent\",\"namespace\":\"com.miniclip.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInAppPurchase\",\"symbols\":[\"in_app_purchase\"]},\"default\":\"in_app_purchase\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"purchaseValue\",\"type\":\"double\"},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"productId\",\"type\":\"string\"}]}")
+  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InAppPurchaseEvent\",\"namespace\":\"com.leca.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInAppPurchase\",\"symbols\":[\"in_app_purchase\"]},\"default\":\"in_app_purchase\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"purchaseValue\",\"type\":\"double\"},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"productId\",\"type\":\"string\"}]}")
 }

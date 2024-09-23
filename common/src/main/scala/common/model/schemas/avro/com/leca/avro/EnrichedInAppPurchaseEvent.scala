@@ -1,5 +1,5 @@
 /** MACHINE-GENERATED FROM AVRO SCHEMA. DO NOT EDIT DIRECTLY */
-package com.miniclip.avro
+package com.leca.avro
 
 import scala.annotation.switch
 
@@ -52,9 +52,9 @@ final case class EnrichedInAppPurchaseEvent(var eventType: EventTypeInAppPurchas
     }
     ()
   }
-  def getSchema: org.apache.avro.Schema = com.miniclip.avro.EnrichedInAppPurchaseEvent.SCHEMA$
+  def getSchema: org.apache.avro.Schema = com.leca.avro.EnrichedInAppPurchaseEvent.SCHEMA$
 }
 
 object EnrichedInAppPurchaseEvent {
-  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"EnrichedInAppPurchaseEvent\",\"namespace\":\"com.miniclip.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInAppPurchase\",\"symbols\":[\"in_app_purchase\"]},\"default\":\"in_app_purchase\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"purchaseValue\",\"type\":\"double\"},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"productId\",\"type\":\"string\"},{\"name\":\"country\",\"type\":\"string\"}]}")
+  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"EnrichedInAppPurchaseEvent\",\"namespace\":\"com.leca.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInAppPurchase\",\"symbols\":[\"in_app_purchase\"]},\"default\":\"in_app_purchase\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"purchaseValue\",\"type\":\"double\"},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"productId\",\"type\":\"string\"},{\"name\":\"country\",\"type\":\"string\"}]}")
 }

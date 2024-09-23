@@ -1,1 +1,1 @@
-name := "Miniclip-MockData"
+name := "MockData"

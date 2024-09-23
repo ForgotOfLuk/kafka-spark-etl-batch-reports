@@ -1,6 +1,6 @@
 package common.kafka
 
-import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
+import com.leca.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 case class KafkaConsumers(

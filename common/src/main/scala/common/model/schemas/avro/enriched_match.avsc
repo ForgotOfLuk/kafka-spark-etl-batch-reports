@@ -1,11 +1,11 @@
 {
   "type": "record",
   "name": "EnrichedMatchEvent",
-  "namespace": "com.miniclip.avro",
+  "namespace": "com.leca.avro",
   "fields": [
     {
       "name": "eventType",
-      "type": "com.miniclip.avro.EventTypeMatch",
+      "type": "com.leca.avro.EventTypeMatch",
       "default": "match"
     },
     {
@@ -22,11 +22,11 @@
     },
     {
       "name": "userAPostmatchInfo",
-      "type": "com.miniclip.avro.UserPostmatchInfo"
+      "type": "com.leca.avro.UserPostmatchInfo"
     },
     {
       "name": "userBPostmatchInfo",
-      "type": ["null", "com.miniclip.avro.UserPostmatchInfo"],
+      "type": ["null", "com.leca.avro.UserPostmatchInfo"],
       "default": null
     },
     {

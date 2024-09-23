@@ -1,6 +1,6 @@
 package utils
 
-import com.miniclip.avro._
+import com.leca.avro._
 import com.typesafe.scalalogging.LazyLogging
 import common.kafka.utils.globalktable.GlobalTableUtils.createGlobalTable
 import common.kafka.utils.stream.KafkaStreamUtils.convertToStringStream

@@ -1,7 +1,7 @@
 {
   "type": "record",
   "name": "InitEvent",
-  "namespace": "com.miniclip.avro",
+  "namespace": "com.leca.avro",
   "fields": [
     {
       "name": "eventType",

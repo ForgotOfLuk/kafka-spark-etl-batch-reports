@@ -1,6 +1,6 @@
 package utils
 
-import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
+import com.leca.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
 import com.typesafe.scalalogging.LazyLogging
 import common.kafka.utils.globalktable.GlobalTableUtils.createGlobalTable
 import common.kafka.utils.stream.KafkaStreamUtils.convertToStringStream

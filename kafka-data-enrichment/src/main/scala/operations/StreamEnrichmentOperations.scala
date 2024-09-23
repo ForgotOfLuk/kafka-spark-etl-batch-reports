@@ -1,6 +1,6 @@
 package operations
 
-import com.miniclip.avro.{EnrichedInAppPurchaseEvent, EnrichedMatchEvent, InAppPurchaseEvent, InitEvent, MatchEvent}
+import com.leca.avro.{EnrichedInAppPurchaseEvent, EnrichedMatchEvent, InAppPurchaseEvent, InitEvent, MatchEvent}
 import common.kafka.utils.globalktable.GlobalKTableJoinOperation
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.kafka.streams.kstream.GlobalKTable

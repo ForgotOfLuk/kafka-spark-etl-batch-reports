@@ -1,7 +1,7 @@
 version: '3'
 services:
   zookeeper:
-    container_name: miniclip_zookeeper
+    container_name: zookeeper
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
@@ -10,9 +10,9 @@ services:
         limits:
           cpus: "0.5"
 
-  miniclip_kafka:
-    container_name: miniclip_kafka
-    hostname: miniclip_kafka
+  kafka:
+    container_name: kafka
+    hostname: kafka
     image: wurstmeister/kafka
     depends_on:
       - zookeeper
@@ -21,10 +21,10 @@ services:
       - "9101:9101"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: miniclip_zookeeper:2181
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9101
-      KAFKA_ADVERTISED_LISTENERS: INSIDE://miniclip_kafka:9092,OUTSIDE://localhost:9101
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9101
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -40,25 +40,25 @@ services:
     ports:
       - "8081:8081"
     environment:
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://miniclip_kafka:9092'
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://kafka:9092'
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     depends_on:
       - zookeeper
-      - miniclip_kafka
+      - kafka
     deploy:
       resources:
         limits:
           cpus: "0.5"
 
   mock-data:
-    container_name: miniclip_mock_data
+    container_name: mock_data
     build: ./mock-data # Dockerfile in the mock-data directory
     environment:
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
     depends_on:
-      - miniclip_kafka
+      - kafka
       - schema-registry
     deploy:
       resources:
@@ -69,10 +69,10 @@ services:
     container_name: kafka_data_quality
     build: ./kafka-data-quality # Dockerfile in the kafka-data-quality directory
     environment:
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
     depends_on:
-      - miniclip_kafka
+      - kafka
       - schema-registry
     deploy:
       resources:
@@ -83,10 +83,10 @@ services:
     container_name: kafka_data_enrichment
     build: ./kafka-data-enrichment # Dockerfile in the kafka-data-enrichment directory
     environment:
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
     depends_on:
-      - miniclip_kafka
+      - kafka
       - schema-registry
     deploy:
       resources:
@@ -124,12 +124,12 @@ services:
     depends_on:
       - spark-master
       - spark-worker
-      - miniclip_kafka
+      - kafka
       - mongodb
     environment:
       APP_NAME: SparkDailyAggregation
       MASTER_URL: spark://spark-master:7077
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       KAFKA_INIT_TOPIC: "init_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
@@ -144,12 +144,12 @@ services:
     depends_on:
       - spark-master
       - spark-worker
-      - miniclip_kafka
+      - kafka
       - mongodb
     environment:
       APP_NAME: SparkMinutePurchaseAggregation
       MASTER_URL: spark://spark-master:7077
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       KAFKA_PURCHASE_TOPIC: "in_app_purchase_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
@@ -164,12 +164,12 @@ services:
     depends_on:
       - spark-master
       - spark-worker
-      - miniclip_kafka
+      - kafka
       - mongodb
     environment:
       APP_NAME: SparkMinuteEnrichedPurchaseAggregation
       MASTER_URL: spark://spark-master:7077
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       KAFKA_PURCHASE_TOPIC: "in_app_purchase_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
@@ -184,12 +184,12 @@ services:
     depends_on:
       - spark-master
       - spark-worker
-      - miniclip_kafka
+      - kafka
       - mongodb
     environment:
       APP_NAME: SparkMinuteMatchAggregation
       MASTER_URL: spark://spark-master:7077
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       KAFKA_MATCH_TOPIC: "match_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"
@@ -204,12 +204,12 @@ services:
     depends_on:
       - spark-master
       - spark-worker
-      - miniclip_kafka
+      - kafka
       - mongodb
     environment:
       APP_NAME: SparkMinuteEnrichedMatchAggregation
       MASTER_URL: spark://spark-master:7077
-      KAFKA_BROKERS: "miniclip_kafka:9092"
+      KAFKA_BROKERS: "kafka:9092"
       KAFKA_MATCH_TOPIC: "match_enriched"
       MONGO_URI: "mongodb://root:example@mongodb:27017"
       MONGO_DB: "timeseriesAggregations"

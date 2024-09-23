@@ -1,1 +1,1 @@
-name := "Miniclip-SparkCommon"
+name := "SparkCommon"

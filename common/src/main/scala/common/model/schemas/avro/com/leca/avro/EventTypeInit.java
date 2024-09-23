@@ -3,11 +3,11 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.miniclip.avro;
+package com.leca.avro;
 @org.apache.avro.specific.AvroGenerated
 public enum EventTypeInit implements org.apache.avro.generic.GenericEnumSymbol<EventTypeInit> {
   init  ;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"EventTypeInit\",\"namespace\":\"com.miniclip.avro\",\"symbols\":[\"init\"]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"enum\",\"name\":\"EventTypeInit\",\"namespace\":\"com.leca.avro\",\"symbols\":[\"init\"]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
 
   @Override

@@ -14,7 +14,7 @@ sbt clean compile assembly
 
 echo "Starting Kafka, Zookeeper, Schema Registry, Spark, and MongoDB..."
 docker-compose build --no-cache #for handling intermediate container issues
-docker-compose up -d zookeeper miniclip_kafka schema-registry spark-master spark-worker mongodb
+docker-compose up -d zookeeper kafka schema-registry spark-master spark-worker mongodb
 
 
 echo "Waiting for Containers to start..."

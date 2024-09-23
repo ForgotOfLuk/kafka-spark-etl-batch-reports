@@ -1,2 +1,2 @@
-name := "Miniclip-SparkDailyAggregation"
+name := "SparkDailyAggregation"
 

@@ -1,9 +1,9 @@
 /** MACHINE-GENERATED FROM AVRO SCHEMA. DO NOT EDIT DIRECTLY */
-package com.miniclip.avro
+package com.leca.avro
 
 import scala.annotation.switch
 
-final case class EnrichedMatchEvent(var eventType: EventTypeMatch = EventTypeMatch.`match`, var time: Long, var userA: String, var userB: String, var userAPostmatchInfo: com.miniclip.avro.UserPostmatchInfo, var userBPostmatchInfo: Option[com.miniclip.avro.UserPostmatchInfo] = None, var winner: String, var gameTier: Long, var duration: Long, var countryA: String, var countryB: String) extends org.apache.avro.specific.SpecificRecordBase {
+final case class EnrichedMatchEvent(var eventType: EventTypeMatch = EventTypeMatch.`match`, var time: Long, var userA: String, var userB: String, var userAPostmatchInfo: com.leca.avro.UserPostmatchInfo, var userBPostmatchInfo: Option[com.leca.avro.UserPostmatchInfo] = None, var winner: String, var gameTier: Long, var duration: Long, var countryA: String, var countryB: String) extends org.apache.avro.specific.SpecificRecordBase {
   def this() = this(EventTypeMatch.`match`, 0L, "", "", new UserPostmatchInfo, None, "", 0L, 0L, "", "")
   def get(field$: Int): AnyRef = {
     (field$: @switch) match {
@@ -62,13 +62,13 @@ final case class EnrichedMatchEvent(var eventType: EventTypeMatch = EventTypeMat
       }.asInstanceOf[String]
       case 4 => this.userAPostmatchInfo = {
         value
-      }.asInstanceOf[com.miniclip.avro.UserPostmatchInfo]
+      }.asInstanceOf[com.leca.avro.UserPostmatchInfo]
       case 5 => this.userBPostmatchInfo = {
         value match {
           case null => None
           case _ => Some(value)
         }
-      }.asInstanceOf[Option[com.miniclip.avro.UserPostmatchInfo]]
+      }.asInstanceOf[Option[com.leca.avro.UserPostmatchInfo]]
       case 6 => this.winner = {
         value.toString
       }.asInstanceOf[String]
@@ -88,9 +88,9 @@ final case class EnrichedMatchEvent(var eventType: EventTypeMatch = EventTypeMat
     }
     ()
   }
-  def getSchema: org.apache.avro.Schema = com.miniclip.avro.EnrichedMatchEvent.SCHEMA$
+  def getSchema: org.apache.avro.Schema = com.leca.avro.EnrichedMatchEvent.SCHEMA$
 }
 
 object EnrichedMatchEvent {
-  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"EnrichedMatchEvent\",\"namespace\":\"com.miniclip.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeMatch\",\"symbols\":[\"match\"]},\"default\":\"match\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"userA\",\"type\":\"string\"},{\"name\":\"userB\",\"type\":\"string\"},{\"name\":\"userAPostmatchInfo\",\"type\":{\"type\":\"record\",\"name\":\"UserPostmatchInfo\",\"fields\":[{\"name\":\"coinBalanceAfterMatch\",\"type\":\"long\"},{\"name\":\"levelAfterMatch\",\"type\":\"long\"},{\"name\":\"device\",\"type\":\"string\"},{\"name\":\"platform\",\"type\":\"string\"}]}},{\"name\":\"userBPostmatchInfo\",\"type\":[\"null\",\"UserPostmatchInfo\"],\"default\":null},{\"name\":\"winner\",\"type\":\"string\"},{\"name\":\"gameTier\",\"type\":\"long\"},{\"name\":\"duration\",\"type\":\"long\"},{\"name\":\"countryA\",\"type\":\"string\"},{\"name\":\"countryB\",\"type\":\"string\"}]}")
+  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"EnrichedMatchEvent\",\"namespace\":\"com.leca.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeMatch\",\"symbols\":[\"match\"]},\"default\":\"match\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"userA\",\"type\":\"string\"},{\"name\":\"userB\",\"type\":\"string\"},{\"name\":\"userAPostmatchInfo\",\"type\":{\"type\":\"record\",\"name\":\"UserPostmatchInfo\",\"fields\":[{\"name\":\"coinBalanceAfterMatch\",\"type\":\"long\"},{\"name\":\"levelAfterMatch\",\"type\":\"long\"},{\"name\":\"device\",\"type\":\"string\"},{\"name\":\"platform\",\"type\":\"string\"}]}},{\"name\":\"userBPostmatchInfo\",\"type\":[\"null\",\"UserPostmatchInfo\"],\"default\":null},{\"name\":\"winner\",\"type\":\"string\"},{\"name\":\"gameTier\",\"type\":\"long\"},{\"name\":\"duration\",\"type\":\"long\"},{\"name\":\"countryA\",\"type\":\"string\"},{\"name\":\"countryB\",\"type\":\"string\"}]}")
 }

@@ -1,11 +1,11 @@
 {
   "type": "record",
   "name": "EnrichedInAppPurchaseEvent",
-  "namespace": "com.miniclip.avro",
+  "namespace": "com.leca.avro",
   "fields": [
     {
       "name": "eventType",
-      "type": "com.miniclip.avro.EventTypeInAppPurchase",
+      "type": "com.leca.avro.EventTypeInAppPurchase",
       "default": "in_app_purchase"
     },
     {

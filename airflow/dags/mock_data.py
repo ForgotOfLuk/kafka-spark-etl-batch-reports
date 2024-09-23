@@ -13,6 +13,6 @@ dag = DAG('mock_data', default_args=default_args)
 # Start Mock-Data Service
 start_mock_data_service = BashOperator(
     task_id='start_mock_data_service',
-    bash_command='cd /Users/pedrolera/IdeaProjects/Miniclip && docker-compose up -d mock-data',
+    bash_command='cd /Users/pedrolera/IdeaProjects/kafka-spark-etl-batch-reports && docker-compose up -d mock-data',
     dag=dag,
 )

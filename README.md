@@ -1,4 +1,4 @@
-# Miniclip Data Engineering Project
+# Data Engineering Project
 
 ## Prerequisites
 - [SBT](https://www.scala-sbt.org/): Scala Build Tool
@@ -13,7 +13,7 @@
 - Run the following script to set up and start the project:
 
    ```bash
-   /bin/bash /path/to/Miniclip/init_script.sh
+   /bin/bash /path/to/init_script.sh
    
 
 This script performs the following tasks:

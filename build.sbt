@@ -10,7 +10,7 @@ import MergeStrategyBuilder.*
 lazy val common = (project in file("common"))
   .settings(
     resolvers ++= commonResolvers,
-    name := "Miniclip-Common",
+    name := "Common",
     // Common dependencies for all subprojects
     libraryDependencies ++= commonDependencies,
     // Avro-specific settings
@@ -27,7 +27,7 @@ lazy val sparkCommon = (project in file("spark-common"))
   .dependsOn(common)
   .settings(
     resolvers ++= commonResolvers,
-    name := "Miniclip-SparkCommon",
+    name := "SparkCommon",
     // Common dependencies for all subprojects
     libraryDependencies ++= sparkProvidedDependencies,
   )
@@ -36,7 +36,7 @@ lazy val sparkCommon = (project in file("spark-common"))
 lazy val mockData = (project in file("mock-data"))
   .dependsOn(common)
   .settings(
-    name := "Miniclip-MockData",
+    name := "MockData",
     // Dependencies specific to the mock-data project
     libraryDependencies ++= mockDataDependencies,
     // Assembly plugin settings for building a fat JAR
@@ -50,7 +50,7 @@ lazy val mockData = (project in file("mock-data"))
 lazy val dataQuality = (project in file("kafka-data-quality"))
   .dependsOn(common)
   .settings(
-    name := "Miniclip-KafkaDataQuality",
+    name := "KafkaDataQuality",
     // Dependencies specific to the data-quality project
     libraryDependencies ++= dataStreamsDependencies,
     // Assembly plugin settings for building a fat JAR
@@ -64,7 +64,7 @@ lazy val dataQuality = (project in file("kafka-data-quality"))
 lazy val dataEnrichment = (project in file("kafka-data-enrichment"))
   .dependsOn(common)
   .settings(
-    name := "Miniclip-KafkaDataEnrichment",
+    name := "KafkaDataEnrichment",
     // Dependencies specific to the data-quality project
     libraryDependencies ++= dataStreamsDependencies,
     // Assembly plugin settings for building a fat JAR
@@ -78,7 +78,7 @@ lazy val dataEnrichment = (project in file("kafka-data-enrichment"))
 lazy val sparkDailyAggregation = (project in file("spark-daily-aggregation"))
   .dependsOn(sparkCommon)
   .settings(
-    name := "Miniclip-SparkDailyAggregation",
+    name := "SparkDailyAggregation",
     libraryDependencies ++= sparkProvidedDependencies ++ sparkDailyDependencies,
     // Assembly plugin settings for building a fat JAR
     assembly / mainClass := Some("SparkDailyAggregatorService"),
@@ -95,7 +95,7 @@ lazy val sparkDailyAggregation = (project in file("spark-daily-aggregation"))
 lazy val sparkMinutePurchaseAggregation = (project in file("spark-minute-purchase-aggregation"))
   .dependsOn(sparkCommon)
   .settings(
-    name := "Miniclip-SparkMinutePurchaseAggregation",
+    name := "SparkMinutePurchaseAggregation",
     libraryDependencies ++= sparkProvidedDependencies,
     // Assembly plugin settings for building a fat JAR
     assembly / mainClass := Some("SparkMinutePurchaseAggregationService"),
@@ -111,7 +111,7 @@ lazy val sparkMinutePurchaseAggregation = (project in file("spark-minute-purchas
 lazy val sparkMinuteMatchAggregation = (project in file("spark-minute-match-aggregation"))
   .dependsOn(sparkCommon)
   .settings(
-    name := "Miniclip-SparkMinuteMatchAggregation",
+    name := "SparkMinuteMatchAggregation",
     libraryDependencies ++= sparkProvidedDependencies,
     // Assembly plugin settings for building a fat JAR
     assembly / mainClass := Some("SparkMinuteMatchAggregatorService"),
@@ -128,5 +128,5 @@ lazy val sparkMinuteMatchAggregation = (project in file("spark-minute-match-aggr
 lazy val root = (project in file("."))
   .aggregate(common, mockData, dataQuality, dataEnrichment, sparkDailyAggregation, sparkMinutePurchaseAggregation, sparkMinuteMatchAggregation)
   .settings(
-    name := "Miniclip"
+    name := "kafka-spark-etl-batch-reports"
   )

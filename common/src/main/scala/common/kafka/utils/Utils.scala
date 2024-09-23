@@ -1,7 +1,7 @@
 package common.kafka.utils
 
-import com.miniclip.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
-import com.typesafe.config.{Config, ConfigFactory}
+import com.leca.avro.{InAppPurchaseEvent, InitEvent, MatchEvent}
+import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import common.kafka.{KafkaConsumers, KafkaProducers}
 import common.model.{EventGenerator, ReferenceData}

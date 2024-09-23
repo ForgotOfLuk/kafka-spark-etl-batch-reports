@@ -1,5 +1,5 @@
 /** MACHINE-GENERATED FROM AVRO SCHEMA. DO NOT EDIT DIRECTLY */
-package com.miniclip.avro
+package com.leca.avro
 
 import scala.annotation.switch
 
@@ -46,9 +46,9 @@ final case class InitEvent(var eventType: EventTypeInit = EventTypeInit.init, va
     }
     ()
   }
-  def getSchema: org.apache.avro.Schema = com.miniclip.avro.InitEvent.SCHEMA$
+  def getSchema: org.apache.avro.Schema = com.leca.avro.InitEvent.SCHEMA$
 }
 
 object InitEvent {
-  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InitEvent\",\"namespace\":\"com.miniclip.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInit\",\"symbols\":[\"init\"]},\"default\":\"init\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"country\",\"type\":\"string\"},{\"name\":\"platform\",\"type\":\"string\"}]}")
+  val SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"InitEvent\",\"namespace\":\"com.leca.avro\",\"fields\":[{\"name\":\"eventType\",\"type\":{\"type\":\"enum\",\"name\":\"EventTypeInit\",\"symbols\":[\"init\"]},\"default\":\"init\"},{\"name\":\"time\",\"type\":\"long\"},{\"name\":\"userId\",\"type\":\"string\"},{\"name\":\"country\",\"type\":\"string\"},{\"name\":\"platform\",\"type\":\"string\"}]}")
 }

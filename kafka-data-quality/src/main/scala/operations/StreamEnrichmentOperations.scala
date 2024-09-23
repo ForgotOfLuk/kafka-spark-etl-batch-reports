@@ -1,6 +1,6 @@
 package operations
 
-import com.miniclip.avro.InitEvent
+import com.leca.avro.InitEvent
 import com.typesafe.scalalogging.LazyLogging
 import common.kafka.utils.globalktable.GlobalKTableJoinOperation
 import operations.join.JoinedStreamOperation
